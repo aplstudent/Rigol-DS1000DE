@@ -1,0 +1,14 @@
+Tuesday - Jan 12th, 2016
+- I am running python 2.7
+- Tried to use pyusb to connect to oscilloscope
+	- Hit a wall immediately while trying to list connected devices
+	- Apparently I need a "backend"
+- I know I used pyvisa before, so now I'm trying that.
+	- pyvisa is here - https://pyvisa.readthedocs.org/en/stable/index.html
+	- it can also be installed through pip
+		- pip install pyvisa
+	- Must install NI-VISA
+		- Support windows and macOS, but only limited linux distros
+		- Slightly worried about incompatibility with ubuntu.
+- Searching for solutions to the "cannot find backend" problem in pyusb
+	- I think pyusb would be the better option if it worked so that we could use it on multiple os's
