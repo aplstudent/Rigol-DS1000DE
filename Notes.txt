@@ -1,5 +1,6 @@
 Tuesday - Jan 12th, 2016
 - I am running python 2.7
+
 - Tried to use pyusb to connect to oscilloscope
 	- Hit a wall immediately while trying to list connected devices
 	- Apparently I need a "backend"
@@ -15,6 +16,16 @@ Tuesday - Jan 12th, 2016
 
 - Looking at possibly using usbtmc
 	- Works with linux, windows, and macos, but requires pyusb on windows.
+	- had to install libusb-win32
+		- ran inf_wizard.exe to make a usb device available
+	- installed python-usbtmc
+	- Trying to run it in ipython
+		- Getting a million errors trying to connect to usb device
+
+- pyusb is working now?  I ran the libusb-win32 inf_wizard.exe and now pyusb is working I guess.
+- I'll try to see if pyusb will work with the oscilloscope tomorrow or Thursday.
+
 
 Summary:
-python packages installed: pyusb, pyvisa
+python packages installed: pyusb, pyvisa, python-usbtmc
+software: ni-visa, libusb-win32
