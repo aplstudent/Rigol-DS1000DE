@@ -12,3 +12,9 @@ Tuesday - Jan 12th, 2016
 		- Slightly worried about incompatibility with ubuntu.
 - Searching for solutions to the "cannot find backend" problem in pyusb
 	- I think pyusb would be the better option if it worked so that we could use it on multiple os's
+
+- Looking at possibly using usbtmc
+	- Works with linux, windows, and macos, but requires pyusb on windows.
+
+Summary:
+python packages installed: pyusb, pyvisa
