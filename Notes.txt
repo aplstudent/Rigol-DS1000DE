@@ -4,6 +4,8 @@ Tuesday - Jan 12th, 2016
 - Tried to use pyusb to connect to oscilloscope
 	- Hit a wall immediately while trying to list connected devices
 	- Apparently I need a "backend"
+
+PYVISA
 - I know I used pyvisa before, so now I'm trying that.
 	- pyvisa is here - https://pyvisa.readthedocs.org/en/stable/index.html
 	- it can also be installed through pip
@@ -14,6 +16,7 @@ Tuesday - Jan 12th, 2016
 - Searching for solutions to the "cannot find backend" problem in pyusb
 	- I think pyusb would be the better option if it worked so that we could use it on multiple os's
 
+USBTMC
 - Looking at possibly using usbtmc
 	- Works with linux, windows, and macos, but requires pyusb on windows.
 	- had to install libusb-win32
@@ -22,10 +25,74 @@ Tuesday - Jan 12th, 2016
 	- Trying to run it in ipython
 		- Getting a million errors trying to connect to usb device
 
+PYUSB WORKING?
 - pyusb is working now?  I ran the libusb-win32 inf_wizard.exe and now pyusb is working I guess.
 - I'll try to see if pyusb will work with the oscilloscope tomorrow or Thursday.
-
 
 Summary:
 python packages installed: pyusb, pyvisa, python-usbtmc
 software: ni-visa, libusb-win32
+_______________________________________
+
+
+Thursday - Jan 14th, 2016
+PYUSB
+- Still messing with pyUSB.  It seems to be identifying the devices that I have connected,
+	but I cannot write anything to them.  Right now I'm just working with my webcam
+- I think windows is giving me a few problems.
+DUAL BOOT
+- We are going to be running these programs on Ubuntu anyway, so I'm dual 
+	booting my laptop with Ubuntu and Windows.
+- I just installed the os's to an ssd a few days ago. My life is changed forever.  
+	So much faster.
+- Uh oh.  Windows wasn't restarting.  Forced shut down.
+- Alright we've booted into Ubuntu.
+- For some reason I'm having problems shutting the computer down. 
+- Windows is resetting -.-  It just refused to boot so this is what I've resorted to.
+- 4:25 -> 8%.  We'll get there eventually.
+- 4:26 -> 17%.  Actually it's going pretty quickly.
+- 4:40 -> We're installing Windows again.  Screw tech problems.  
+	I'm just glad I'm not doing this on my desktop.
+- I think I'm going to buy a raspberry pi just to have that as a test linux environment, 
+	at least if the ubuntu install refuses to work.
+- 4:45 -> Ok I think we've got windows installed.
+- "All of your files are exactly where you left them".  Alright windows, let's see them.
+- Everything looks good.  Windows gave me a detailed list of everything that was deleted.  
+	It was just a bunch of programs
+	that I can easily reinstall.
+- Ubuntu and Windows really don't want to dual boot. -.-  
+	Now windows will boot, but Ubuntu is stuck at startup.
+	It looks like it at least isn't stalled.  I'll let it spend some time trying to fix itself.
+EDIT GRUB FILE
+- Had to edit grub file in ubuntu.  Deleted "quiet splash".
+- I can see all my files in Ubuntu thank god.
+- Alright now I'm gonna have to spend a while setting up all the files.
+
+RUNNING IPYTHON
+- Had a shit show trying to get ipython working on ubuntu 
+	(I'm not too familiar with linux generally)
+	I had to get used to using sudo apt-get install <pkg> and all those commands.  
+	Also had to install python packages in that way,
+	which is unusual for me who usually always just runs pip install <pkg>.
+
+PYUSB
+- All of my usbs are showing up now.
+__________________________________
+
+Monday - Jan 18th, 2016
+PYUSB
+- I see the oscilloscope showing up but I apparently do not have permission
+	to access the device.
+- Following the instructions from scruss.com/blog/tag/usbtmc/
+	- Had to give permission through a "rules" file.
+- Now I'm getting a "resource busy" problem whenever I try to communicate
+	with the oscilloscope.
+- pyusb is giving me a headache
+USBTMC
+- Success!  I was able to ask "*IDN?" to the osc, and I was returned	"Rigol Technologies, DS1102E ..."
+- Able to read and write to the oscilloscope.
+- Starting to write a wrapper for the usbtmc.Instrument class as an abstraction
+	layer.  This will allow for multiple library backends other than just usbtmc.
+	We could write one for pyUSB and pyVISA for example.  This would give us
+	compatability with windows.
+
