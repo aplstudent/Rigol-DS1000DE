@@ -410,16 +410,16 @@ class Rigol:
     """
     Which trigger functions have been implemented.
     Numbering is based off of numbering in the programming manual.
-    Partially implemented
+    fully implemented
     1 - yes
     2 - yes
     3 - yes
-    4 - no
-    5 - no
-    6 - no
-    7 - no
-    8 - no
-    9 - no
+    4 - yes
+    5 - yes
+    6 - yes
+    7 - yes
+    8 - yes
+    9 - yes
     """
 
     # TRIGGER CONTROL 1
@@ -499,6 +499,154 @@ class Rigol:
             raise InvalidArgument("Mode argument must be one of {}.".format(valid_modes))
         msg = ":TRIG{}:LEV?".format(mode)
         return self.dev.ask(msg)
+
+    # TRIGGER CONTROL 4
+    def triggerSweep(self, mode, sweep):
+        """
+        The commands set and query the trigger type. <mode>could be :EDGE,
+        :PULSe, :SLOPe, :PATTern or :DURation.
+        sweep can take values [AUTO, NORM, SING]
+        """
+        valid_modes = ["EDGE", "PULS", "SLOP", "PATT", "DUR"]
+        valid_sweep = ["AUTO", "NORM", "SING"]
+        if mode not in valid_modes:
+            raise InvalidArgument("Mode argument must be one of {}.".format(valid_modes))
+        if sweep not in valid_sweep:
+            raise InvalidArgument("Sweep argument must be one of {}.".format(valid_sweep))
+        msg = ":TRIG:{}:SWE {}".format(mode, sweep)
+        self.dev.write(msg)
+
+    def askTriggerSweep(self, mode):
+        """
+        The query returns AUTO, NORMAL or SINGLE.
+        """
+        valid_modes = ["EDGE", "PULS", "SLOP", "PATT", "DUR"]
+        if mode not in valid_modes:
+            raise InvalidArgument("Mode argument must be one of {}.".format(valid_modes))
+        msg = ":TRIG:{}:SWE?".format(mode)
+        return self.dev.ask(msg)
+
+    # TRIGGER CONTROL 5
+    def triggerCoupling(self, mode, coupling):
+        """
+        The commands set and query the coupling type. Thereinto,
+        DC: Allow all signals pass.
+        AC: Block DC signals and attenuate the signals lower than 10Hz.
+        HF: Reject high frequency signals (Higher than 150KHz).
+        LF: Reject DC signals and attenuate low frequency signals (Lower than 8KHz).
+        <mode> could be :EDGE, :PULSe or :SLOPe.
+        """
+        valid_coupling = ["DC", "AC", "HF", "LF"]
+        valid_modes = ["EDGE", "PULS", "SLOP"]
+        if mode not in valid_modes:
+            raise InvalidArgument("Mode argument must be one of {}.".format(valid_modes))
+        if coupling not in valid_coupling:
+            raise InvalidArgument("Coupling argument must be one of {}.".format(valid_coupling))
+        msg = ":TRIG:{}:COUP {}".format(mode, coupling)
+        self.dev.write(msg)
+
+    def askTriggerCoupling(self, mode):
+        """
+        The query returns DC, AC, HF or LF.
+        """
+        valid_modes = ["EDGE", "PULS", "SLOP"]
+        if mode not in valid_modes:
+            raise InvalidArgument("Mode argument must be one of {}.".format(valid_modes))
+        msg = ":TRIG:{}:COUP?".format(mode)
+        return self.dev.ask(msg)
+
+    # TRIGGER CONTROL 6
+    def triggerHoldoff(self, count):
+        """
+        The commands set and query the trigger holfoff time. The range of <count> is
+        <count>: 500ns~1.5s.
+        """
+        if count < .0000005 or count > 1.5:
+            raise InvalidArgument("Count argument must be between 500ns and 1.5s")
+        msg = ":TRIG:HOLD {}".format(count)
+        self.dev.write(msg)
+
+    def askTriggerHoldoff(self):
+        """
+        The query returns the setting value of <count> in s.
+        """
+        msg = ":TRIG:HOLD?"
+        return self.dev.ask(msg)
+
+    # TRIGGER CONTROL 7
+    def askTriggerStatus(self):
+        """
+        The command queries the operating status of the oscilloscope. The status could
+        be RUN, STOP, T`D, WAIT or AUTO.
+        """
+        msg = ":TRIG:STAT?"
+        return self.dev.ask(msg)
+
+    # TRIGGER CONTROL 8
+    def trigger50(self):
+        """
+        The command sets the trigger level to the vertical midpoint of amplitude.
+        """
+        msg = ":TRIG%50"
+        self.dev.write(msg)
+
+    # TRIGGER CONTROL 9
+    def triggerForce(self):
+        """
+        The command forces the oscilloscope to trigger signal, which is usually used in
+        “Normal” and “Single” mode.
+        """
+        msg = ":FORC"
+        self.dev.write(msg)
+
+    ###################
+    # 2. EDGE TRIGGER #
+    ###################
+    """
+    not implemented
+    """
+
+    ####################
+    # 3. PULSE TRIGGER #
+    ####################
+    """
+    not implemented
+    """
+
+    ####################
+    # 4. VIDEO TRIGGER #
+    ####################
+    """
+    not implemented
+    """
+
+    ####################
+    # 5. SLOPE TRIGGER #
+    ####################
+    """
+    not implemented
+    """
+
+    ######################
+    # 6. PATTERN TRIGGER #
+    ######################
+    """
+    not implemented
+    """
+
+    #######################
+    # 7. DURATION TRIGGER #
+    #######################
+    """
+    not implemented
+    """
+
+    ##########################
+    # 8. ALTERNATION TRIGGER #
+    ##########################
+    """
+    not implemented
+    """
 
     ###########
     # CHANNEL #

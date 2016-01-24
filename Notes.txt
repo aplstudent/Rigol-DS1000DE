@@ -120,3 +120,7 @@ Saturday - Jan 23rd, 2016
 - Was able to plot data from the scope!  The scaling for the voltage and time is all off, so that needs to be fixed.
 - Wrote about 500 lines today so that's pretty good.  May continue.  It's past midnight now but I was up till 5am
 	this morning and I'm not very tired.
+- I've plotted in python plenty of times using matplotlib, but never had to do plots of changing data.  I've been
+	thinking about how I can do this.  Seems like there is a library in matplotlib which does something that can 
+	help.  matplotlib.animation.
+	- I can also just update the points as per a suggestion from stack overflow.
