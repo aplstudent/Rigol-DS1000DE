@@ -60,7 +60,7 @@ DUAL BOOT
 - Everything looks good.  Windows gave me a detailed list of everything that was deleted.  
 	It was just a bunch of programs
 	that I can easily reinstall.
-- Ubuntu and Windows really don't want to dual boot. -.-  
+- Ubuntu and Windows really don't want to dual boot. -.-
 	Now windows will boot, but Ubuntu is stuck at startup.
 	It looks like it at least isn't stalled.  I'll let it spend some time trying to fix itself.
 EDIT GRUB FILE
@@ -95,4 +95,23 @@ USBTMC
 	layer.  This will allow for multiple library backends other than just usbtmc.
 	We could write one for pyUSB and pyVISA for example.  This would give us
 	compatability with windows.
+____________________________________
 
+Saturday - Jan 23rd, 2016
+- Continue working on the usbtmc wrapper in the RigolSkeleton.py file
+- Messing around with some of the functions available to me. :RUN, :STOP, :AUTO,
+	stuff like that.
+- Running :HARDcopy is supposed to save a bitmap of the current screen somewhere,
+	but I have no idea where it is being saved to.
+- Tried to run tests in ipython but I kept getting a "resource busy" error.  Tried to detach
+	kernel driver because that is what I had to do before but it wasn't working.  Restarted computer,
+	hopefully this fixes it.
+	- Seemed to fix it.  I think I could have just unplugged the device and replugged it in.
+- Implementing various functions from the rigol documentation.  I should keep track of what I do and
+	do not implement.  I think I'll write that within my code as comments.
+- Just realized that when you connect the osc via usb and start writing commands to it, it will refuse
+	any manual inputs.  Kind of annoying.
+- Tried to retrieve waveform data using the ask() method, but got some weird utf8 decoding errors.
+	- Someone else has asked this before and had to revert to using the ask_raw function.  Worked
+		fine after switching to that function.
+-Was able to plot data from the scope!  The scaling for the voltage and time is all off, so that needs to be fixed.

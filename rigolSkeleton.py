@@ -12,6 +12,8 @@ Written and tested in python2.7 on Ubuntu 15.10
 """
 import usbtmc
 
+__author__ = "Brian Perrett"
+
 
 class RigolSkeleton():
     """
@@ -37,6 +39,11 @@ class RigolSkeleton():
             dev_chosen = usbtmc.list_devices()[int(dev_con) - 1]
             product_id = dev_chosen.idProduct
             vendor_id = dev_chosen.idVendor
+        for dev in usbtmc.list_devices():
+            if dev.idProduct == product_id and dev.idVendor == vendor_id: 
+                if dev.is_kernel_driver_active(0):
+                    reattach = True
+                    dev.detach_kernel_driver(0)
         instr = usbtmc.Instrument(vendor_id, product_id)
         return instr
 
@@ -58,9 +65,16 @@ class RigolSkeleton():
         """
         return self.instr.ask(message, num, encoding)
 
+    def read_raw(self, num=-1):
+        return self.instr.read_raw(num)
+
+    def ask_raw(self, msg, num=-1):
+        return self.instr.ask_raw(msg, num)
+
 
 def testConnect():
     rigol = RigolSkeleton()
+    return rigol
 
 if __name__ == '__main__':
     testConnect()
