@@ -40,9 +40,8 @@ class RigolSkeleton():
             product_id = dev_chosen.idProduct
             vendor_id = dev_chosen.idVendor
         for dev in usbtmc.list_devices():
-            if dev.idProduct == product_id and dev.idVendor == vendor_id: 
+            if dev.idProduct == product_id and dev.idVendor == vendor_id:
                 if dev.is_kernel_driver_active(0):
-                    reattach = True
                     dev.detach_kernel_driver(0)
         instr = usbtmc.Instrument(vendor_id, product_id)
         return instr
@@ -66,9 +65,15 @@ class RigolSkeleton():
         return self.instr.ask(message, num, encoding)
 
     def read_raw(self, num=-1):
+        """
+        Wrapping around the read_raw method in usbtmc.Instrument
+        """
         return self.instr.read_raw(num)
 
     def ask_raw(self, msg, num=-1):
+        """
+        Wrapping around the ask_raw method in usbtmc.Instrument
+        """
         return self.instr.ask_raw(msg, num)
 
 

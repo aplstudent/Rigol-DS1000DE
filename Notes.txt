@@ -111,7 +111,12 @@ Saturday - Jan 23rd, 2016
 	do not implement.  I think I'll write that within my code as comments.
 - Just realized that when you connect the osc via usb and start writing commands to it, it will refuse
 	any manual inputs.  Kind of annoying.
+	- Tried to set up connection so that I could close my connection and continue pressing the buttons on
+		the oscilloscope but that didn't work.  Even after "closing" the connection, the oscilloscope would
+		not take any input.
 - Tried to retrieve waveform data using the ask() method, but got some weird utf8 decoding errors.
 	- Someone else has asked this before and had to revert to using the ask_raw function.  Worked
 		fine after switching to that function.
--Was able to plot data from the scope!  The scaling for the voltage and time is all off, so that needs to be fixed.
+- Was able to plot data from the scope!  The scaling for the voltage and time is all off, so that needs to be fixed.
+- Wrote about 500 lines today so that's pretty good.  May continue.  It's past midnight now but I was up till 5am
+	this morning and I'm not very tired.

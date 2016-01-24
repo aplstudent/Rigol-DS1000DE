@@ -3,7 +3,10 @@ rigol.py
 University of Oregon - Advanced Physics Lab
 Built on top of rigolSkeleton.py to control the rigol ds 1000d/e
     series oscilloscopes
+
+Using this programming guide -> http://www.batronix.com/pdf/Rigol/ProgrammingGuide/DS1000DE_ProgrammingGuide_EN.pdf
 """
+from __future__ import division
 import rigolSkeleton as rs
 
 __author__ = "Brian Perrett"
@@ -52,25 +55,242 @@ class Rigol:
         self.dev.write(":AUTO")
 
     ###########
+    # ACQUIRE #
+    ###########
+    """
+    fully implemented
+    1 - yes
+    2 - yes
+    3 - yes
+    4 - yes
+    5 - yes
+    """
+
+    # ACQUIRE 1
+    def acquireType(self, typ):
+        """
+        The commands set the current acquire type of the oscilloscope.
+        <type> could be NORM, AVER or PEAK.
+        """
+        valid = ["NORM", "AVER", "PEAK"]
+        if typ not in valid:
+            raise InvalidArgument("Typ(e) argument must be one of {}.".format(valid))
+        msg = ":ACQ:TYPE {}".format(typ)
+        self.dev.write(msg)
+
+    def askAcquireType(self):
+        """
+        Query acquire type of oscilloscope.
+        The query returns NORMAL, AVERAGE or PEAKDETECT
+        """
+        msg = ":ACQ:TYPE?"
+        return self.dev.ask(msg)
+
+    # ACQUIRE 2
+    def acquireMode(self, mode):
+        """
+        The commands set the current acquire mode of the oscilloscope.
+        <mode> could be RTIM (Real time Sampling) or ETIM (Equivalent Sampling).
+        """
+        valid = ["RTIM", "ETIM"]
+        if mode not in valid:
+            raise InvalidArgument("Mode argument must be one of {}.".format(valid))
+        msg = ":ACQ:MODE {}".format(mode)
+        self.dev.write(msg)
+
+    def askAcquireMode(self):
+        """
+        Query acquire mode for oscilloscope.
+        The query returns REAL_TIME or EQUAL_TIME.
+        """
+        msg = ":ACQ:MODE?"
+        return self.dev.ask(msg)
+
+    # ACQUIRE 3
+    def acquireAverages(self, count):
+        """
+        The commands set the average numbers in Average mode. <count>
+        could be and integer of 2 times the power of N within 2 and 256.
+        """
+        valid = [2, 4, 8, 16, 32, 64, 128, 256]
+        if count not in valid:
+            raise InvalidArgument("Count argument must be one of {}.".format(valid))
+        msg = ":ACQ:AVER {}".format(count)
+        self.dev.write(msg)
+
+    def askAcquireAverages(self):
+        """
+        The query returns 2, 4, 8, 16, 32, 64, 128 or 256.
+        """
+        msg = ":ACQ:AVER?"
+        return self.dev.ask(msg)
+
+    # ACQUIRE 4
+    def askAcquireSamplingRate(self, channel):
+        """
+        The command queries the current sampling rate of the analog channel or digital
+        channel (only for DS1000D series).
+        """
+        valid = [1, 2]
+        if channel not in valid:
+            raise InvalidArgument("Channel argument must be one of {}.".format(channel))
+        msg = ":ACQ:SAMP? CHAN{}".format(channel)
+        return self.dev.ask(msg)
+
+    # ACQUIRE 5
+    def acquireMemDepth(self, depth):
+        """
+        The commands set and query the memory depth of the oscilloscope. <depth>
+        could be LONG (long memory) or NORMal (normal memory)
+        """
+        valid = ["LONG", "NORM"]
+        if depth not in valid:
+            raise InvalidArgument("Depth argument must be one of {}.".format(valid))
+        msg = ":ACQ:MEMD {}".format(depth)
+        self.dev.write(msg)
+
+    def askAcquireMemDepth(self):
+        """
+        The query returns LONG or NORMAL.
+        """
+        msg = ":ACQ:MEMD?"
+        return self.dev.ask(msg)
+
+    ###########
     # DISPLAY #
     ###########
-    def brightness(self, level):
+    """
+    fully implemented
+    1 - yes
+    2 - yes
+    3 - yes
+    4 - yes
+    5 - yes
+    6 - yes
+    7 - yes
+    8 - yes
+    """
+    # DISPLAY 1
+    def displayType(self, typ):
+        """
+        The commands set the display type between sampling points. <type>
+        could be VECT (vector display) or DOTS (point display).
+        """
+        valid = ["VECT", "DOTS"]
+        if typ not in valid:
+            raise InvalidArgument("Typ(e) argument must be one of {}.".format(valid))
+        msg = ":DISP:TYPE {}".format(typ)
+        self.dev.write(msg)
+
+    def askDisplayType(self):
+        """
+        The query returns VECTORS or DOTS.
+        """
+        msg = ":DISP:TYPE?"
+        return self.dev.ask(msg)
+
+    # DISPLAY 2
+    def displayGrid(self, grid):
+        """
+        The commands set and query the state of the screen grid. <grid> could be FULL
+        (open the background grid and coordinates), HALF (turn off the background grid)
+        or NONE (turn off the background grid and coordinates).
+        """
+        valid = ["FULL", "HALF", "NONE"]
+        if grid not in valid:
+            raise InvalidArgument("Grid argument must be one of {}.".format(valid))
+        msg = ":DISP:GRID {}".format(grid)
+        self.dev.write(msg)
+
+    def askDisplayGrid(self):
+        """
+        The query returns FULL, HALF or NONE.
+        """
+        msg = ":DISP:GRID?"
+        return self.dev.ask(msg)
+
+    # DISPLAY 3
+    def displayPersist(self, persist=True):
+        """
+        The commands set and query the state of the waveform persist. “ON” denotes
+        the record points hold until disable the presist, “OFF” denotes the record point
+        varies in high refresh rate.
+        persist can take on boolean values True or False.
+        """
+        msg = ":DISP:PERS {}".format("ON" if persist else "OFF")
+        self.dev.write(msg)
+
+    def askDisplayPersist(self):
+        """
+        The query returns ON or OFF.
+        """
+        msg = ":DISP:PERS?"
+        return self.dev.ask(msg)
+
+    # DISPLAY 4
+    def displayMnuDisplay(self, t):
+        """
+        The commands set and query the time for hiding menus automatically. <time>
+        could be 1s, 2s, 5s, 10s, 20s or Infinite.
+        """
+        valid = ["1", "2", "5", "10", "20", "Infinite"]
+        if str(t) not in valid:
+            raise InvalidArgument("t(ime) argument must be one of {}.".format(valid))
+        msg = ":DISP:MNUD {}".format(t)
+        self.dev.write(msg)
+
+    def askDisplayMnuDisplay(self):
+        """
+        The query returns 1s, 2s, 5s, 10s, 20s or Infinite.
+        """
+        msg = ":DISP:MNUD?"
+        return self.dev.ask(msg)
+
+    # DISPLAY 5
+    def displayMnuStatus(self, disp=True):
+        """
+        The commands set and query the state of the operation menu.
+        disp can take boolean values True or False, to either display
+            menu status or not.
+        """
+        msg = ":DISP:MNUS {}".format("ON" if disp else "OFF")
+        self.dev.write(msg)
+
+    def askDisplayMnuStatus(self):
+        """
+        The query returns ON or OFF.
+        """
+        msg = ":DISP:MNUS?"
+        return self.dev.ask(msg)
+
+    # DISPLAY 6
+    def displayClear(self):
+        """
+        The command clears out of date waveforms on the screen during waveform
+        persist.
+        """
+        msg = ":DISP:CLE"
+        self.dev.write(msg)
+
+    # DISPLAY 7
+    def displayBrightness(self, level):
         """
         Changes the brightness level of the grid.
         level - Brightness level from 0 to 32
         """
-        if level < 0 or level > 32:
+        if level not in range(33):
             raise InvalidArgument("Level argument must be between 0 and 32.")
         self.dev.write(":DISP:BRIG {}".format(level))
 
-    def askBrightness(self):
+    def askDisplayBrightness(self):
         """
         query the brightness of the grid
         returns a string from 0 to 32
         """
         return self.dev.ask(":DISP:BRIG?")
 
-    def intensity(self, level):
+    # DISPLAY 8
+    def displayIntensity(self, level):
         """
         level - intensity level from 0 to 32
         """
@@ -78,21 +298,122 @@ class Rigol:
             raise InvalidArgument("level argument must be between 0 and 8.")
         self.dev.write(":DISP:INT {}".format(level))
 
-    def askIntensity(self):
+    def askDisplayIntensity(self):
         """
         Returns waveform brightness from 0 to 32
         """
         return self.dev.ask(":DISP:INT?")
 
-    ###########
-    # TRIGGER #
-    ###########
+    ############
+    # TIMEBASE #
+    ############
+    """
+    fully implemented
+    1 - yes
+    2 - yes
+    3 - yes
+    4 - yes
+    """
+    # TIMEBASE 1
+    def timebaseMode(self, mode):
+        """
+        The commands set and query the scan mode of horizontal timebase. <mode>
+        could be MAIN (main timebase) or DELayed (delayed scan).
+        """
+        valid = ["MAIN", "DEL"]
+        if mode not in valid:
+            raise InvalidArgument("Mode argument must be one of {}.".format(valid))
+        msg = ":TIM:MODE {}".format(mode)
+        self.dev.write(msg)
+
+    def askTimebaseMode(self):
+        """
+        The query returns MAIN or DELAYED.
+        """
+        msg = ":TIM:MODE?"
+        return self.dev.ask(msg)
+
+    # TIMEBASE 2
+    def timebaseOffset(self, offset, delayed=False):
+        """
+        The commands set and query the offset of the MAIN or DELayed timebase (that
+        is offset of the waveform position relative to the trigger midpoint.). Thereinto,
+        In NORMAL mode, the range of <scale_val> is 1s ~ end of the memory;
+        In STOP mode, the range of <scale_val> is -500s ~ +500s;
+        In SCAN mode, the range of <scale_val> is -6*Scale ~ +6*Scale; (Note: Scale
+        indicates the current horizontal scale, the unit is s/div.)
+        In MAIN state, the item [:DELayed] should be omitted.
+        """
+        # not checking for valid input.
+        msg = ":TIM{}:OFFS {}".format(":DEL" if delayed else "", offset)
+        self.dev.write(msg)
+
+    def askTimebaseOffset(self, delayed=False):
+        """
+        The query returns the setting value of the <offset> in s.
+        """
+        msg = ":TIM{}:OFFS?".format(":DEL" if delayed else "")
+        return self.dev.ask(msg)
+
+    # TIMEBASE 3
+    def timebaseScale(self, scale, delayed=False):
+        """
+        The commands set and query the horizontal scale for MAIN or DELayed
+        timebase, the unit is s/div (seconds/grid), thereinto:
+        In YT mode, the range of <scale_val> is 2ns - 50s;
+        In ROLL mode, the range of <scale_val> is 500ms - 50s;
+        In MAIN state, the item [:DELayed] should be omitted.
+        """
+        msg = ":TIM{}:SCAL {}".format(":DEL" if delayed else "", scale)
+        self.dev.write(msg)
+
+    def askTimebaseScale(self, delayed=False):
+        """
+        The query returns the setting value of <scale_val> in s.
+        """
+        msg = ":TIM{}:SCAL?".format(":DEL" if delayed else "")
+        return self.dev.ask(msg)
+
+    def timebaseFormat(self, format):
+        """
+        The commands set and query the horizontal timebase. <value> could be XY, YT
+        or SCANning.
+        """
+        valid = ["XY", "YT", "SCAN"]
+        if format not in valid:
+            raise InvalidArgument("Format argument must be one of {}".format(valid))
+        msg = ":TIM:FORM {}".format(format)
+        self.dev.write(msg)
+
+    def askTimebaseFormat(self):
+        """
+        The query returns X-Y, Y-T or SCANNING.
+        """
+        msg = ":TIM:FORM?"
+        return self.dev.ask(msg)
+
+    """
+    __TRIGGER FUNCTIONS__
+    The trigger functions are separated into 8 sub-sections
+    1. Trigger Control
+    2. Edge Trigger
+    3. Pulse Trigger
+    4. Video Trigger
+    5. Slope Trigger
+    6. Pattern Trigger
+    7. Duration Trigger
+    8. Alternation Trigger
+    """
+    ######################
+    # 1. TRIGGER CONTROL #
+    ######################
     """
     Which trigger functions have been implemented.
     Numbering is based off of numbering in the programming manual.
+    Partially implemented
     1 - yes
     2 - yes
-    3 - no
+    3 - yes
     4 - no
     5 - no
     6 - no
@@ -101,7 +422,7 @@ class Rigol:
     9 - no
     """
 
-    # TRIGGER 1
+    # TRIGGER CONTROL 1
     def triggerMode(self, mode):
         """
         sets trigger mode
@@ -118,7 +439,7 @@ class Rigol:
         """
         return self.dev.ask(":TRIG:MODE?")
 
-    # TRIGGER 2
+    # TRIGGER CONTROL 2
     def triggerSource(self, mode, source):
         """
         sets trigger mode and source
@@ -155,10 +476,35 @@ class Rigol:
         # print(msg)
         return self.dev.ask(msg)
 
+    # TRIGGER CONTROL 3
+    def triggerLevel(self, mode, level):
+        """
+        The commands set and query the trigger level. <mode> could be :EDGE, :PULSe
+        or :VIDEO; the range of <level> is: -6*Scale~+6*Scale, Scale indicates the current vertical
+        scale, the unit is V/div.
+        """
+        # We can check for valid inputs using the other methods.  Implement this later.
+        valid_modes = ["EDGE", "PULS", "VIDEO"]
+        if mode not in valid_modes:
+            raise InvalidArgument("Mode argument must be one of {}.".format(valid_modes))
+        msg = ":TRIG{}:LEV {}".format(mode, level)
+        self.dev.write(msg)
+
+    def askTriggerLevel(self, mode):
+        """
+        The query returns the setting value of <level> in V.
+        """
+        valid_modes = ["EDGE", "PULS", "VIDEO"]
+        if mode not in valid_modes:
+            raise InvalidArgument("Mode argument must be one of {}.".format(valid_modes))
+        msg = ":TRIG{}:LEV?".format(mode)
+        return self.dev.ask(msg)
+
     ###########
     # CHANNEL #
     ###########
     """
+    partially implemented
     1 - no
     2 - no
     3 - yes
@@ -196,6 +542,7 @@ class Rigol:
     # MEASURE #
     ###########
     """
+    partially implemented
     1 - no
     2 - yes
     3 - no
@@ -219,13 +566,14 @@ class Rigol:
     # WAVEFORM #
     ############
     """
+    partially implemented
     1 - yes
     """
 
     def askWaveformData(self, source):
         """
         returns 1024 data for <source>.  Raw Data.
-        run through numpy.frombuffer(data, "B") to get point data 
+        run through numpy.frombuffer(data, "B") to get point data
         First 10 bytes are apparently a header, so we can skip those.
         """
         valid_sources = ["CHAN1", "CHAN2", "DIG", "MATH", "FFT"]
