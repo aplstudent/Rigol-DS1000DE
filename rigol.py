@@ -603,15 +603,112 @@ class Rigol:
     # 2. EDGE TRIGGER #
     ###################
     """
-    not implemented
+    fully implemented
+    1 - yes
+    2 - yes
+    3 - yes
     """
+    # EDGE TRIGGER 1
+    def teSlope(self, positive=True):
+        """
+        The commands set and query the type of edge trigger. The type could be
+        POSitive (Rising edge) or NEGative (Failing edge).
+        """
+        msg = ":TRIG:EDGE:SLOP {}".format("POS" if positive else "NEG")
+        self.dev.write(msg)
+
+    def askTeSlope(self):
+        """
+        The query returns POSITIVE or NEGATIVE.
+        """
+        msg = ":TRIG:EDGE:SLOP?"
+        return self.dev.ask(msg)
+
+    # EDGE TRIGGER 2
+    def teSensitivity(self, count):
+        """
+        The commands set and query the sensitive of edge trigger. The range of
+        <count> could be 0.1div~1div.
+        """
+        if count < .1 or count > 1:
+            raise InvalidArgument("Count argument must be between .1 and 1")
+        msg = ":TRIG:EDGE:SENS {}".format(count)
+        self.dev.write(msg)
+
+    def askTeSensitivity(self):
+        """
+        The query returns the setting value <count> in div.
+        """
+        msg = ":TRIG:EDGE:SENS?"
+        return self.dev.ask(msg)
 
     ####################
     # 3. PULSE TRIGGER #
     ####################
     """
-    not implemented
+    fully implemented
+    1 - yes
+    2 - yes
+    3 - yes
     """
+    # PULSE TRIGGER 1
+    def tpMode(self, mode):
+        """
+        The commands set and query the pulse condition. <mode> could be
+        +GREaterthan (positive pulse greater than), +LESSthan (positive pulse less
+        than), +EQUal (positive pulse equals to), -GREaterthan (negative pulse greater
+        than), -LESSthan (negative pulse less than) or –EQUal (negative pulse equals
+        to).
+        """
+        valid = ["+GRE", "+LESS", "-GRE", "-LESS", "+EQU", "-EQU"]
+        if mode not in valid:
+            raise InvalidArgument("Mode argument must be one of {}".format(valid))
+        msg = ":TRIG:PULS:MODE {}".format(mode)
+        self.dev.write(msg)
+
+    def askTpMode(self):
+        """
+        The query returns +GREATER THAN, +LESS THAN, +EQUAL, -GREATER THAN,
+        -LESS THAN or -EQUAL.
+        """
+        msg = ":TRIG:PULS:MODE?"
+        return self.dev.ask(msg)
+
+    # PULSE TRIGGER 2
+    def tpSensitivity(self, count):
+        """
+        The commands set and query the sensitive of pulse trigger. The range of
+        <count> could be 0.1div~1div.
+        """
+        if count < .1 or count > 1:
+            raise InvalidArgument("Count argument must be between .1 and 1")
+        msg = ":TRIG:PULS:SENS {}".format(count)
+        self.dev.write(msg)
+
+    def askTpSensitivity(self):
+        """
+        The query returns the setting value of <count> in div.
+        """
+        msg = ":TRIG:PULS:SENS?"
+        return self.dev.ask(msg)
+
+    # PULSE TRIGGER 3
+    def tpWidth(self, width):
+        """
+        The commands set and query the pulse width. The range of <wid> is 20ns ~
+        10s.
+        """
+        if width < .00000002 or width > 10:
+            raise InvalidArgument("Width argument must be between 20ns and 10s")
+        msg = ":TRIG:PULS:WIDT {}".format(width)
+        self.dev.write(msg)
+
+    def askTpWidth(self):
+        """
+        The query returns the setting value of the <wid> in s.
+        """
+        msg = ":TRIG:PULS:WIDT?"
+        return self.dev.ask(msg)
 
     ####################
     # 4. VIDEO TRIGGER #
