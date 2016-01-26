@@ -29,6 +29,12 @@ class Rigol:
             self.dev = rs.RigolSkeleton(idProduct=idProduct, idVendor=idVendor)
         else:
             raise InvalidBackendException("Please specify a valid backend such as {}".format(self.backends))
+        self.volt1_scale = self.askChannelScale(1)
+        self.volt1_offset = self.askChannelOffset(1)
+        self.volt2_scale = self.askChannelScale(2)
+        self.volt2_offset = self.askChannelOffset(2)
+        self.time_scale = self.askTimebaseScale(delayed=False)
+        self.time_offset = self.askTimebaseOffset(delayed=False)
 
     def identify(self):
         return self.dev.ask("*IDN?")
@@ -347,6 +353,7 @@ class Rigol:
         # not checking for valid input.
         msg = ":TIM{}:OFFS {}".format(":DEL" if delayed else "", offset)
         self.dev.write(msg)
+        self.time_offset = self.askTimebaseOffset(delayed=delayed)
 
     def askTimebaseOffset(self, delayed=False):
         """
@@ -366,6 +373,7 @@ class Rigol:
         """
         msg = ":TIM{}:SCAL {}".format(":DEL" if delayed else "", scale)
         self.dev.write(msg)
+        self.time_scale = self.askTimebaseScale(delayed=delayed)
 
     def askTimebaseScale(self, delayed=False):
         """
@@ -1061,7 +1069,7 @@ class Rigol:
         msg = ":CHAN{}:INV {}".format(channel, "ON" if on else "OFF")
         self.dev.write(msg)
 
-    def askChannelInver(self, channel):
+    def askChannelInvert(self, channel):
         """
         The query returns ON or OFF.
         """
@@ -1082,6 +1090,10 @@ class Rigol:
             raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
         msg = ":CHAN{}:OFFS {}".format(channel, offset)
         self.dev.write(msg)
+        if channel == 1:
+            self.volt1_offset = self.askChannelOffset(1)
+        elif channel == 2:
+            self.volt2_offset = self.askChannelOffset(2)
 
     def askChannelOffset(self, channel):
         """
@@ -1089,7 +1101,7 @@ class Rigol:
         """
         if channel not in [1, 2]:
             raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
-        msg = ":CHAN{}:OFFS?".foramt(channel)
+        msg = ":CHAN{}:OFFS?".format(channel)
         return self.dev.ask(msg)
 
     # CHANNEL 6
@@ -1135,6 +1147,10 @@ class Rigol:
             raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
         msg = ":CHAN{}:SCAL {}".format(channel, v)
         self.dev.write(msg)
+        if channel == 1:
+            self.volt1_scale = self.askChannelScale(1)
+        elif channel == 2:
+            self.volt2_scale = self.askChannelScale(2)
 
     def askChannelScale(self, channel):
         """
@@ -1270,3 +1286,17 @@ class Rigol:
     """
     not enabled
     """
+    def keyLock(self, enable=True):
+        """
+        This command is used to enable/disable the buttons function on the front panel
+        (except for “Force”).
+        """
+        msg = ":KEY:LOCK {}".format("ENAB" if enable else "DIS")
+        self.dev.write(msg)
+
+    def askKeyLock(self):
+        """
+        The query returns ENABLE or DISABLE.
+        """
+        msg = "KEY:LOCK?"
+        return self.dev.ask(msg)

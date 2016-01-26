@@ -135,3 +135,14 @@ Monday - Jan 25th, 2016
 - Added the rest of the channel commands and others.
 - Next I'll try to add some of the key functions.  It doesn't look like most of them will be necessary for
 	general use though.
+______________________________________
+
+Tuesday - Jan 26th, 2016
+- Added the key function that I wanted.  Only the key enable function though,
+	the rest of the key functions are just emulating key presses on the oscilloscope
+	and those functions have already been fulfilled by other methods that I have written.
+- Added attributes for Channel1/2 voltage scale that update every time you change the scales.
+	Also added an attribute for the timebase scale and offsets for timebase and voltages that auto
+	update with changes using their respecitive methods.  This way, plotting can always be done 
+	accurately.  Although I'm still not sure what the correct conversion is from raw data points
+	to the correct time and voltages.
