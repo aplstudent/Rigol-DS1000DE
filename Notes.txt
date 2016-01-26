@@ -146,3 +146,6 @@ Tuesday - Jan 26th, 2016
 	update with changes using their respecitive methods.  This way, plotting can always be done 
 	accurately.  Although I'm still not sure what the correct conversion is from raw data points
 	to the correct time and voltages.
+- renamed rigolSkeleton.py to usbcon.py because I realized there was nothing in the file that was
+	specific to the rigol oscilloscope and I could use it for any usb device.  I'll use it for future
+	devices also.

@@ -7,7 +7,7 @@ Built on top of rigolSkeleton.py to control the rigol ds 1000d/e
 Using this programming guide -> http://www.batronix.com/pdf/Rigol/ProgrammingGuide/DS1000DE_ProgrammingGuide_EN.pdf
 """
 from __future__ import division
-import rigolSkeleton as rs
+import usbcon as uc
 
 __author__ = "Brian Perrett"
 
@@ -26,7 +26,7 @@ class Rigol:
 
     def __init__(self, backend, idProduct=None, idVendor=None):
         if backend == "usbtmc":
-            self.dev = rs.RigolSkeleton(idProduct=idProduct, idVendor=idVendor)
+            self.dev = uc.UsbCon(idProduct=idProduct, idVendor=idVendor)
         else:
             raise InvalidBackendException("Please specify a valid backend such as {}".format(self.backends))
         self.volt1_scale = self.askChannelScale(1)

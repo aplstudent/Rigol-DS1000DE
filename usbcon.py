@@ -1,11 +1,11 @@
 """
-rigolSkeleton.py
+usbcon.py
 Brian Perrett
 Advanced Projects Lab, University of Oregon
 January 12, 2016
 
 to be used on top of other classes as the means of writing commands
-    to and retrieving from the Rigol DS1102E
+    to and retrieving from the Rigol DS1102E, or other usb devices.
 Add more classes to add more backends.
 
 Written and tested in python2.7 on Ubuntu 15.10
@@ -15,7 +15,7 @@ import usbtmc
 __author__ = "Brian Perrett"
 
 
-class RigolSkeleton():
+class UsbCon():
     """
     USBTMC BACKEND
     A wrapper of the usbtmc library.  The idea is that I can create an
