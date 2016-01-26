@@ -714,29 +714,247 @@ class Rigol:
     # 4. VIDEO TRIGGER #
     ####################
     """
-    not implemented
+    fully implemented
+    1 - yes
+    2 - yes
+    3 - yes
+    4 - yes
+    5 - yes
     """
+    # VIDEO TRIGGER 1
+    def tvMode(self, mode):
+        """
+        The commands set and query the synchronous mode of the video trigger.
+        <mode> could be ODDfield, EVENfield, LINE or ALLlines.
+        """
+        valid = ["ODD", "EVEN", "LINE", "ALL"]
+        if mode not in valid:
+            raise InvalidArgument("Mode argument must be one of {}.".format(valid))
+        msg = ":TRIG:VIDEO:MODE {}".format(mode)
+        self.dev.write(msg)
+
+    def askTvMode(self):
+        """
+        The query returns ODD FIELD, EVEN FIELD, LINE or ALL LINES.
+        """
+        msg = ":TRIG:VIDEO:MODE?"
+        return self.dev.ask(msg)
+
+    # VIDEO TRIGGER 2
+    def tvPolarity(self, pos_polarity=True):
+        """
+        The commands set and query the video polarity. The polarity could be POSitive
+        or NEGative.
+        """
+        msg = ":TRIG:VIDEO:POL {}".format("POS" if pos_polarity else "NEG")
+        self.dev.write(msg)
+
+    def askTvPolarity(self):
+        """
+        The query returns POSITIVE or NEGATIVE.
+        """
+        msg = ":TRIG:VIDEO:POL?"
+        return self.dev.ask(msg)
+
+    # VIDEO TRIGGER 3
+    def tvStandard(self, ntsc=True):
+        """
+        The commands set and query the type of video trigger standard.
+        """
+        msg = ":TRIG:VIDEO:STAN {}".format("NTSC" if ntsc else "PALS")
+        self.dev.write(msg)
+
+    def askTvStandard(self):
+        """
+        The query returns NTSC or PAL/SECAM.
+        """
+        msg = ":TRIG:VIDEO:STAN?"
+        return self.dev.ask(msg)
+
+    # VIDEO TRIGGER 4
+    def tvLine(self, value):
+        """
+        The commands set and query the number of specified line of synchronous. In
+        NTSC standard, the range of <value> is 1~525; in PAL/SECAM standard, the
+        range of <value> is 1~625.
+        """
+        standard = self.askTvStandard()
+        if standard == "NTSC":
+            if value < 1 or value > 525:
+                raise InvalidArgument("When using {}, line value must be between 1 and 525.".format(standard))
+        if standard == "PAL/SECAM":
+            if value < 1 or value > 625:
+                raise InvalidArgument("When using {}, line value must be between 1 and 625.".format(standard))
+        msg = ":TRIG:VIDEO:LINE {}".format(value)
+        self.dev.write(msg)
+
+    def askTvLine(self):
+        """
+        """
+        msg = ":TRIG:VIDEO:LINE?"
+        return self.dev.ask(msg)
+
+    # VIDEO TRIGGER 5
+    def tvSensitivity(self, count):
+        """
+        The commands set and query the trigger sensitive, the range of <count> is:
+        0.1div ~1div.
+        """
+        if count < .1 or count > 1:
+            raise InvalidArgument("Count argument must be between .1 and 1.")
+        msg = ":TRIG:VIDEO:SENS {}".format(count)
+        self.dev.write(msg)
+
+    def askTvSensitivity(self):
+        """
+        The query returns the setting value of <count> in div.
+        """
+        msg = ":TRIG:VIDEO:SENS?"
+        return self.dev.ask(msg)
 
     ####################
     # 5. SLOPE TRIGGER #
     ####################
     """
-    not implemented
+    fully implemented
+    1 - yes
+    2 - yes
+    3 - yes
+    4 - yes
+    5 - yes
+    6 - yes
     """
+    # SLOPE TRIGGER 1
+    def tsTime(self, count):
+        """
+        The commands set and query the time setting about slope trigger. The range of
+        <count> is 20ns~10s.
+        """
+        if count < .00000002 or count > 10:
+            raise InvalidArgument("Count argument must be between 20ns and 10s.")
+        msg = ":TRIG:SLOP:TIME {}".format(count)
+        self.dev.write(msg)
 
-    ######################
-    # 6. PATTERN TRIGGER #
-    ######################
-    """
-    not implemented
-    """
+    def askTsTime(self):
+        """
+        The query returns the setting value of <count> in s.
+        """
+        msg = ":TRIG:SLOP:TIME?"
+        return self.dev.ask(msg)
 
-    #######################
-    # 7. DURATION TRIGGER #
-    #######################
-    """
-    not implemented
-    """
+    # SLOPE TRIGGER 2
+    def tsSensitivity(self, count):
+        """
+        The commands set and query the trigger sensitive. The range of <count> is:
+        0.1div ~1div.
+        """
+        if count < .1 or count > 1:
+            raise InvalidArgument("Count argument must be between .1 and 1.")
+        msg = ":TRIG:SLOP:SENS {}".format(count)
+        self.dev.write(msg)
+
+    def askTsSensitivity(self):
+        """
+        The query returns the setting value of <count> in div.
+        """
+        msg = ":TRIG:SLOP:SENS?"
+        return self.dev.ask(msg)
+
+    # SLOPE TRIGGER 3
+    def tsMode(self, mode):
+        """
+        The commands set and query the slope condition. <mode> could be
+        +GREaterthan (positive slope greater than), +LESSthan (positive slope less
+        than), + EQUal (positive slope equals to), -GREaterthan (negative slope greater
+        than), -LESSthan (negative slope less than) or –EQUal (negative slope equals
+        to).
+        """
+        valid = ["+GRE", "+LESS", "+EQU", "-GRE", "-LESS", "-EQU"]
+        if mode not in valid:
+            raise InvalidArgument("Mode must be one of {}.".format(valid))
+        msg = ":TRIG:SLOP:MODE {}".format(mode)
+        self.dev.write(msg)
+
+    def askTsMode(self):
+        """
+        The query returns +GREATER THAN, +LESS THAN, +EQUAL, -GREATER THAN,
+        -LESS THAN OR -EQUAL.
+        """
+        msg = ":TRIG:SLOP:MODE?"
+        return self.dev.ask(msg)
+
+    # SLOPE TRIGGER 4
+    def tsWindow(self, count):
+        """
+        The commands set and query the type of trigger level which can be adjusted by
+        the level knob on the oscilloscope.
+        When the slope condition is +GREaterthan, +LESSthan or + EQUal, <count>
+        could be PA (rising edge Level A), PB (rising edge Level B) or PAB (rising edge
+        Level AB);
+        When the slope condition is -GREaterthan, -LESSthan or –EQUal, <count> could
+        be NA (falling edge Level A), NB (falling edge LevelB) or NAB (falling edge
+        LevelAB).
+        """
+        trig_mode = self.askTsMode()
+        if "+" in trig_mode:
+            valid = ["PA", "PB", "PAB"]
+            if count not in valid:
+                raise InvalidArgument("While trigger mode is {}, count argument must be one of {}.".format(valid))
+        if "-" in trig_mode:
+            valid = ["NA", "NB", "NAB"]
+            if count not in valid:
+                raise InvalidArgument("While trigger mode is {}, count argument must be one of {}.".format(valid))
+        msg = ":TRIG:SLOP:WIND {}".format(count)
+        self.dev.write(msg)
+
+    def askTsWindow(self):
+        """
+        The query returns P_WIN_A, P_WIN_B, P_WIN_AB, N_WIN_A, N_WIN_B or
+        N_WIN_AB.
+        """
+        msg = ":TRIG:SLOP:WIND?"
+        return self.dev.ask(msg)
+
+    # SLOPE TRIGGER 5
+    def tsLevelA(self, value):
+        """
+        The commands set and query the upper boundary “Level A” of trigger level. The
+        range of <value> is LevelB~+ 6*Scale; Scale indicates the current vertical level,
+        the unit is V/div.
+        """
+        # Not checking for valid inputs but should be implemented
+        msg = ":TRIG:SLOP:LEVA {}".format(value)
+        self.dev.write(msg)
+
+    def askTsLevelA(self):
+        """
+        The query returns the setting value of level in V.
+        """
+        msg = ":TRIG:SLOP:LEVA?"
+        return self.dev.ask(msg)
+
+    # SLOPE TRIGGER 6
+    def tsLevelB(self, value):
+        """
+        The commands set and query the lower boundary “LEVel B” of trigger level. The
+        range of <value> is -6*Scale~LevelA; Scale indicates the current vertical level,
+        the unit is V/div.
+        """
+        # Not checking for valid inputs but should be implemented
+        msg = ":TRIG:SLOP:LEVB {}".format(value)
+        self.dev.write(msg)
+
+    def askTsLevelB(self):
+        """
+        The query returns the setting value of level in V.
+        Note: Level A (upper boundary) can not be less than the maximum of Level B
+        (lower boundary).        """
+        msg = ":TRIG:SLOP:LEVB?"
+        return self.dev.ask(msg)
+
+    # PATTERN TRIGGER IS NOT A FEATURE ON THE DS1000E SERIES
+
+    # DURATION TRIGGER IS NOT A FEATURE ON THE DS1000E SERIES
 
     ##########################
     # 8. ALTERNATION TRIGGER #
@@ -745,20 +963,76 @@ class Rigol:
     not implemented
     """
 
+    ########
+    # MATH #
+    ########
+    """
+    not implemented
+    """
+
     ###########
     # CHANNEL #
     ###########
     """
-    partially implemented
-    1 - no
-    2 - no
+    fully implemented
+    1 - yes
+    2 - yes
     3 - yes
-    4 - no
-    .
-    .
-    .
+    4 - yes
+    5 - yes
+    6 - yes
+    7 - yes
+    8 - yes
+    9 - yes
+    10 - yes
     """
 
+    # CHANNEL 1
+    def channelBwlimit(self, channel, on=True):
+        """
+        The commands set and query the On/Off state of bandwidth limit. <n> could be
+        1 or 2.
+        """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel argument must be either {}.".format([1, 2]))
+        msg = ":CHAN{}:BWL {}".format(channel, "ON" if on else "OFF")
+        self.dev.write(msg)
+
+    def askChannelBwlimit(self, channel):
+        """
+        The query returns ON or OFF.
+        """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel argument must be either {}.".format([1, 2]))
+        msg = ":CHAN{}:BWL?"
+        return self.ask(msg)
+
+    # CHANNEL 2
+    def channelCoupling(self, channel, coupling):
+        """
+        The commands set and query the coupling mode of channel. DC indicates both
+        the AC and DC components passed from input signal; AC indicates the blocked
+        DC components; GND indicates to cut off the input of signal; <n> could be 1 or
+        2.
+        """
+        valid = ["AC", "DC", "GND"]
+        if coupling not in valid:
+            raise InvalidArgument("Coupling argument must be one of {}.".format(valid))
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel argument must be one of {}.".format([1, 2]))
+        msg = ":CHAN{}:COUP {}".format(channel, coupling)
+        self.dev.write(msg)
+
+    def askChannelCoupling(self, channel):
+        """
+        The query returns AC, DC or GND.
+        """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel argument must be one of {}.".format([1, 2]))
+        msg = ":CHAN{}:COUP?".format(channel)
+        return self.dev.ask(msg)
+
+    # CHANNEL 3
     def channelDisplay(self, channel, on=True):
         """
         channel - either 1 or 2
@@ -768,11 +1042,97 @@ class Rigol:
             raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
         self.dev.write(":CHAN{}:DISP {}".format(channel, "ON" if on else "OFF"))
 
+    def askChannelDisplay(self, channel):
+        """
+        The query returns ON or OFF.
+        """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
+        self.dev.write(":CHAN{}:DISP?".format(channel))
+
+    # CHANNEL 4
+    def channelInvert(self, channel, on=True):
+        """
+        The commands set and query the On/Off state of the waveform inverted. <n>
+        could be 1 or 2.
+        """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
+        msg = ":CHAN{}:INV {}".format(channel, "ON" if on else "OFF")
+        self.dev.write(msg)
+
+    def askChannelInver(self, channel):
+        """
+        The query returns ON or OFF.
+        """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
+        msg = ":CHAN{}:INV?".format(channel)
+        return self.dev.ask(msg)
+
+    # CHANNEL 5
+    def channelOffset(self, channel, offset):
+        """
+        The commands set and query the vertical offset. <n> could be 1 or 2.
+        When Scale≥250mV, the range of <offset>is -40V~+40V;
+        When Scale<250mV, the range of <offset>is -2V~+2V.
+        """
+        # not checking for valid offset inputs
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
+        msg = ":CHAN{}:OFFS {}".format(channel, offset)
+        self.dev.write(msg)
+
+    def askChannelOffset(self, channel):
+        """
+        The query returns the setting value of <offset>.
+        """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
+        msg = ":CHAN{}:OFFS?".foramt(channel)
+        return self.dev.ask(msg)
+
+    # CHANNEL 6
+    def channelProbe(self, channel, attn):
+        """
+        The commands set and query the attenuation factor of the probe. <n> could be
+        1 or 2; <attn> could be 1, 5, 10, 50, 100, 500 or 1000.
+        """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
+        valid_attn = [1, 5, 10, 50, 100, 500, 1000]
+        if attn not in valid_attn:
+            raise InvalidArgument("Attn argument must be one of {}".format(valid_attn))
+        msg = ":CHAN{}:PROB {}".format(channel, attn)
+        self.dev.write(msg)
+
+    def askChannelProbe(self, channel):
+        """
+        The query returns the setting value of <attn>.
+        """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
+        msg = ":CHAN{}:PROB?".format(channel)
+        return self.dev.ask(msg)
+
+    # CHANNEL 7
     def channelScale(self, channel, v):
         """
         channel - Which channel to scale.
         v - voltage scale
+        The commands set and query the vertical scale of waveform magnified by the
+        oscilloscope. <n> could be 1 or 2.
+        When the Probe is set to 1X, the range of <range> is 2mV ~ 10V;
+        When the Probe is set to 5X, the range of <range> is 10mV ~50V;
+        When the Probe is set to 10X, the range of <range> is 20mV ~ 100V;
+        When the Probe is set to 50X, the range of <range> is 100mV ~ 500V;
+        When the Probe is set to 100X, the range of <range> is 200mV ~ 1000V;
+        When the Probe is set to 500X, the range of <range> is 1V ~5000V;
+        When the Probe is set to 1000X, the range of <range> is 2V~ 10000V.
         """
+        # not error checking scale value
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
         msg = ":CHAN{}:SCAL {}".format(channel, v)
         self.dev.write(msg)
 
@@ -780,7 +1140,61 @@ class Rigol:
         """
         query what the scale is for channel <channel>
         """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
         msg = ":CHAN{}:SCAL?".format(channel)
+        return self.dev.ask(msg)
+
+    # CHANNEL 8
+    def channelFilter(self, channel, on=True):
+        """
+        The commands set and query the On/Off state of the filter. <n> could be 1 or 2.
+        """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
+        msg = "CHAN{}:FILT {}".format(channel, "ON" if on else "OFF")
+        self.dev.write(msg)
+
+    def askChannelFilter(self, channel):
+        """
+        The query returns ON or OFF.
+        """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
+        msg = ":CHAN{}:FILT?".format(channel)
+        return self.dev.ask(msg)
+
+    # CHANNEL 9
+    def askChannelMemoryDepth(self, channel):
+        """
+        The command queries the memory depth of the specified channel. <n> could
+        be 1 or 2.
+        In long memory, up to 1Mpts could be stored in single channel and 512kpts in
+        dual channels;
+        In common memory, up to 16kpts could be stored in single channel and 8kpts in
+        dual channels.
+        """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
+        msg = ":CHAN{}:MEMD?".format(channel)
+        return self.dev.ask(msg)
+
+    # CHANNEL 10
+    def channelVernier(self, channel, on=True):
+        """
+        The commands set and query the adjusting mode of scale. ON denotes Fine,
+        OFF denotes Coarse; <n> could be 1 or 2.
+        """
+        if channel not in [1, 2]:
+            raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
+        msg = ":CHAN{}:VERN {}".format(channel, "ON" if on else "OFF")
+        self.dev.write(msg)
+
+    def askChannelVernier(self, channel):
+        """
+        The query returns Coarse or Fine.
+        """
+        msg = ":CHAN{}:VERN?".format(channel)
         return self.dev.ask(msg)
 
     ###########
@@ -815,6 +1229,7 @@ class Rigol:
     1 - yes
     """
 
+    # WAVEFORM 1
     def askWaveformData(self, source):
         """
         returns 1024 data for <source>.  Raw Data.
@@ -830,11 +1245,28 @@ class Rigol:
         # return self.dev.read_raw()
         return self.dev.ask_raw(msg)[10:]
 
+    # WAVEFORM 2
     def waveformPointsMode(self, mode):
         """
+        This command sets the mode of waveform points. <points_mode> can be:
+        NORMal, MAXimum or RAW.
         """
         valid = ["NORM", "MAX", "RAW"]
         if mode not in valid:
             raise InvalidArgument("Mode argument must be one of {}.".format(valid))
         msg = ":WAV:POIN:MODE {}".format(mode)
         self.dev.write(msg)
+
+    def askWaveformPointsMode(self):
+        """
+        The query returns NORMal, MAXimum or RAW.
+        """
+        msg = ":WAV:POIN:MODE?"
+        return self.dev.ask(msg)
+
+    #######
+    # KEY #
+    #######
+    """
+    not enabled
+    """

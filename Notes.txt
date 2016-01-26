@@ -124,3 +124,14 @@ Saturday - Jan 23rd, 2016
 	thinking about how I can do this.  Seems like there is a library in matplotlib which does something that can 
 	help.  matplotlib.animation.
 	- I can also just update the points as per a suggestion from stack overflow.
+_____________________________________
+
+Monday - Jan 25th, 2016
+- Writing more wrapper functions.  On to doing the trigger functions.  So many functions mannnn.
+- Got up to 1000 lines yey.
+- I think I've found how to enable the use of the buttons on the front of the oscilloscope.
+	There is a "key enable" function which locks or unlocks use of buttons.  I'll have to try
+	sending that command later.
+- Added the rest of the channel commands and others.
+- Next I'll try to add some of the key functions.  It doesn't look like most of them will be necessary for
+	general use though.
