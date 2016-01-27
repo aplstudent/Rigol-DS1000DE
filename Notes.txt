@@ -158,3 +158,10 @@ Tuesday - Jan 26th, 2016
 - multiprocessing is super confusing and going to be hard to debug if things go wrong, but I 
 	just did a test and it seemed to work.  I'll go into lab tomorrow hopefully and see if I can
 	get the plots to look exactly like what shows up on the oscilloscope.
+________________________________________
+
+Wednesday - Jan 27th, 2016
+- I want to try to put the Process instances inside of the rigolx class.  That will make them
+	much easier to control and I can more easily dictate when loops will run and I can stop
+	the process from continuously querying the oscilloscope instead of ddos-ing the osc.
+- placed the multiprocessing.Process instances inside of the rigolx class.  I'll check later today if it works.

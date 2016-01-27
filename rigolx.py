@@ -26,6 +26,10 @@ __author__ = "Brian Perrett"
 
 
 class Rigolx:
+
+    checkqueuedelay = 40 # milliseconds
+    addqueuetime = .1 # seconds
+
     def __init__(self, rigol, q1, q2):
         self.dev = rigol
         self.q1 = q1
@@ -35,8 +39,8 @@ class Rigolx:
         """
         """
         self.root = tk.Tk()
-        self.root.after(5, self.checkQueue1Poll, self.q1)
-        self.root.after(5, self.checkQueue2Poll, self.q2)
+        self.root.after(self.checkqueuedelay, self.checkQueue1Poll, self.q1)
+        self.root.after(self.checkqueuedelay, self.checkQueue2Poll, self.q2)
         self.root.title("Rigol DS1000D/E Interface")
         self.makeWaveformFrame()
         self.ch1 = False
@@ -52,7 +56,7 @@ class Rigolx:
         except Empty:
             pass
         finally:
-            self.root.after(5, self.checkQueue1Poll, c_queue)
+            self.root.after(self.checkqueuedelay, self.checkQueue1Poll, c_queue)
 
     def checkQueue2Poll(self, c_queue):
         try:
@@ -63,7 +67,7 @@ class Rigolx:
         except Empty:
             pass
         finally:
-            self.root.after(5, self.checkQueue2Poll, c_queue)
+            self.root.after(self.checkqueuedelay, self.checkQueue2Poll, c_queue)
 
     def makeWaveformFrame(self):
         """
@@ -106,28 +110,20 @@ class Rigolx:
             self.ch2 = True
 
 
-def generateData(q):
-    y = [5, 5, 5]
-    y2 = [5, 5, 6]
-    while True:
-        time.sleep(.1)
-        q.put(y)
-        time.sleep(.1)
-        q.put(y2)
-
-
 def getWaveformData(q1, q2, dev, rigol):
     """
     dev - device connection
     rigol - rigolx class instance
     """
-    while True:
+    while rigol.ch1 or rigol.ch2:
         x = dev.getTimebase()
-        y1 = dev.getWaveform("CHAN1")
-        y2 = dev.getWaveform("CHAN2")
-        q1.put([x, y1])
-        q2.put([x, y2])
-        time.sleep(.1)
+        if rigol.ch1:
+            y1 = dev.getWaveform("CHAN1")
+            q1.put([x, y1])
+        if rigol.ch2:
+            y2 = dev.getWaveform("CHAN2")
+            q2.put([x, y2])
+        time.sleep(Rigolx.addqueuetime)
 
 
 def main():

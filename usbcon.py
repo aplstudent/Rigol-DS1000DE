@@ -78,7 +78,7 @@ class UsbCon():
 
 
 def testConnect():
-    rigol = RigolSkeleton()
+    rigol = UsbCon()
     return rigol
 
 if __name__ == '__main__':

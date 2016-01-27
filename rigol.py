@@ -1335,7 +1335,6 @@ class Rigol:
         time_axis = np.arange(-300.0/50*self.time_scale, 300.0/50*self.time_scale, self.time_scale/50.0)
         return time_axis
 
-
     #######
     # KEY #
     #######
