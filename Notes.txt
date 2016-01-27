@@ -149,3 +149,12 @@ Tuesday - Jan 26th, 2016
 - renamed rigolSkeleton.py to usbcon.py because I realized there was nothing in the file that was
 	specific to the rigol oscilloscope and I could use it for any usb device.  I'll use it for future
 	devices also.
+- Changed timebaseScale/offset, channelOffset/scale functions to return float values rather 
+	than strings
+- Starting to write a gui interface in a new file rigolx.py.  Trying to understand how I will 
+	implement multiprocessing so that the gui will not lock up every time it is running 
+	a new process.  I'm also trying to figure out how to place a plot inside a tkinter frame.  
+	Shouldn't be too difficult.
+- multiprocessing is super confusing and going to be hard to debug if things go wrong, but I 
+	just did a test and it seemed to work.  I'll go into lab tomorrow hopefully and see if I can
+	get the plots to look exactly like what shows up on the oscilloscope.

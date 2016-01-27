@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 rigol.py
 University of Oregon - Advanced Physics Lab
@@ -5,9 +6,14 @@ Built on top of rigolSkeleton.py to control the rigol ds 1000d/e
     series oscilloscopes
 
 Using this programming guide -> http://www.batronix.com/pdf/Rigol/ProgrammingGuide/DS1000DE_ProgrammingGuide_EN.pdf
+sources I used
+- http://scruss.com/blog/tag/usbtmc/
+- http://www.righto.com/2013/07/rigol-oscilloscope-hacks-with-python.html
+- http://www.cibomahto.com/2010/04/controlling-a-rigol-oscilloscope-using-linux-and-python/
 """
 from __future__ import division
 import usbcon as uc
+import numpy as np
 
 __author__ = "Brian Perrett"
 
@@ -360,7 +366,9 @@ class Rigol:
         The query returns the setting value of the <offset> in s.
         """
         msg = ":TIM{}:OFFS?".format(":DEL" if delayed else "")
-        return self.dev.ask(msg)
+        offset = self.dev.ask(msg)
+        self.time_offset = float(offset)
+        return float(offset)
 
     # TIMEBASE 3
     def timebaseScale(self, scale, delayed=False):
@@ -380,7 +388,9 @@ class Rigol:
         The query returns the setting value of <scale_val> in s.
         """
         msg = ":TIM{}:SCAL?".format(":DEL" if delayed else "")
-        return self.dev.ask(msg)
+        scale = self.dev.ask(msg)
+        self.time_scale = float(scale)
+        return float(scale)
 
     def timebaseFormat(self, format):
         """
@@ -1102,7 +1112,12 @@ class Rigol:
         if channel not in [1, 2]:
             raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
         msg = ":CHAN{}:OFFS?".format(channel)
-        return self.dev.ask(msg)
+        offset = float(self.dev.ask(msg))
+        if channel == 1:
+            self.volt1_offset = offset
+        elif channel == 2:
+            self.volt2_offset = offset
+        return float(offset)
 
     # CHANNEL 6
     def channelProbe(self, channel, attn):
@@ -1159,7 +1174,12 @@ class Rigol:
         if channel not in [1, 2]:
             raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
         msg = ":CHAN{}:SCAL?".format(channel)
-        return self.dev.ask(msg)
+        scale = self.dev.ask(msg)
+        if channel == 1:
+            self.volt1_scale = scale
+        elif channel == 2:
+            self.volt2_scale = scale
+        return float(scale)
 
     # CHANNEL 8
     def channelFilter(self, channel, on=True):
@@ -1279,6 +1299,42 @@ class Rigol:
         """
         msg = ":WAV:POIN:MODE?"
         return self.dev.ask(msg)
+
+    ###################
+    # CUSTOM WAVEFORM #
+    ###################
+    def getWaveform(self, source):
+        """
+        The data that is extracted from the oscilloscope needs to be inverted,
+            multiplied by a constant and shifted by some voltage offset to get the
+            true values.
+        A custom method for retrieving the corrected voltage values out of the
+            oscilloscope.
+        """
+        raw_data = self.askWaveformData(source)
+        raw_data = np.frombuffer(raw_data, "B")
+        data = self.convertVoltages(raw_data, source)
+        return data
+
+    def convertVoltages(self, data, source):
+        """
+        data - numpy array of unconverted voltage values.
+        """
+        if source == "CHAN1":
+            data = -data + 255
+            data = (data - 130.0 - self.volt1_offset/self.volt1_scale*25) / 25 * self.volt1_scale
+        elif source == "CHAN2":
+            data = -data + 255
+            data = (data - 130.0 - self.volt2_offset/self.volt2_scale*25) / 25 * self.volt2_scale
+        return data
+
+    def getTimebase(self):
+        """
+        get correct x-values for plotting waveform
+        """
+        time_axis = np.arange(-300.0/50*self.time_scale, 300.0/50*self.time_scale, self.time_scale/50.0)
+        return time_axis
+
 
     #######
     # KEY #
