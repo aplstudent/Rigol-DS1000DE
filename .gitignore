@@ -201,7 +201,7 @@ var/
 sdist/
 develop-eggs/
 .installed.cfg
-.ipynb_checkpoints/
+.ipynb_checkpoints
 
 # Installer logs
 pip-log.txt
