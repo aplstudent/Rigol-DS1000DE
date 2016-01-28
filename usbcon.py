@@ -11,6 +11,7 @@ Add more classes to add more backends.
 Written and tested in python2.7 on Ubuntu 15.10
 """
 import usbtmc
+from multiprocessing import Rlock
 
 __author__ = "Brian Perrett"
 
@@ -25,6 +26,7 @@ class UsbCon():
     def __init__(self, idProduct=None, idVendor=None):
         """
         """
+        self.lock = Rlock()
         self.instr = self.connect(idProduct, idVendor)
         print("Asking *IDN? returns: {}".format(self.ask("*IDN?")))
 

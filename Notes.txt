@@ -172,3 +172,7 @@ Wednesday - Jan 27th, 2016
 	oscilloscope, I'll update the x and y_scale attributes.
 - Trying to find what the best refresh rates are.  The oscilloscope seems to refresh every 10th of a second or so,
 	so I want to try to match that.
+- Starting to write a save/load state feature so that you could save different states for the oscilloscope
+	and quickly load them up without having to manually change everything every time.
+- I want to use grid instead of pack for my layout manager on the main root window.  Otherwise
+	I think I will have a difficult time dictating exactly the layout I want.

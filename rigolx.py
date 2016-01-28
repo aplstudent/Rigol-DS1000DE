@@ -65,6 +65,11 @@ class Rigolx:
         self.t1.start()
         self.root.mainloop()
 
+    def setVoltsPerDiv(self):
+        """
+        """
+        pass
+
     def checkQueue1(self, q1, q2):
         try:
             data1 = q1.get(0)
@@ -115,12 +120,24 @@ class Rigolx:
         self.ch2_button.grid(row=0, column=1, padx=140, pady=5, ipadx=10, ipady=10)
         self.wf_button_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=1)
 
+    def makeScalingFrame(self):
+        """
+        """
+        self.scale_frame = tk.Frame(self.root)
+        self.vperdiventry = tk.Entry(self.scale_frame)
+        self.vperdivbutton = tk.Button(self.scale_frame, text="SET V/DIV")
+
+        row = 0
+        self.vperdiventry.grid(row=row, column=0, padx=5, pady=5)
+        self.vperdivbutton.grid(row=row, column=1, padx=(0, 5), pady=5)
+        row += 1
+
     def showChannel(self, channel):
         """
         start process if neither were on before.
         If this function causes both channels to be off, terminate the
             processes.
-        """            
+        """
         if channel==1 and self.ch1:
             x = self.dev.channelDisplay(1, False)
             self.ch1 = False
