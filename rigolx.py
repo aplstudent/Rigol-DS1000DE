@@ -100,14 +100,18 @@ class Rigolx:
     def showChannel1(self):
         if self.ch1:
             self.ch1 = False
+            self.dev.channelDisplay(1, on=False)
         else:
             self.ch1 = True
+            self.dev.channelDisplay(1, on=True)
 
     def showChannel2(self):
         if self.ch2:
             self.ch2 = False
+            self.dev.channelDisplay(2, on=False)
         else:
             self.ch2 = True
+            self.dev.channelDisplay(2, on=True)
 
 
 def getWaveformData(q1, q2, dev, rigol):
@@ -116,6 +120,7 @@ def getWaveformData(q1, q2, dev, rigol):
     rigol - rigolx class instance
     """
     while rigol.ch1 or rigol.ch2:
+        print("Retrieving Data")
         x = dev.getTimebase()
         if rigol.ch1:
             y1 = dev.getWaveform("CHAN1")
@@ -133,8 +138,9 @@ def main():
     q2.cancel_join_thread()
     dev = rigol.Rigol("usbtmc")
 
-    r = Rigolx(q1, q2)
+    r = Rigolx(dev, q1, q2)
     t1 = Process(target=getWaveformData, args=(q1, q2, dev, r))
+    t1.start()
     # t2 = Process(target=getWaveformData2, args=(q2, dev, r))
     r.start()
 

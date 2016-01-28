@@ -1174,12 +1174,12 @@ class Rigol:
         if channel not in [1, 2]:
             raise InvalidArgument("Channel must take a value from {}.".format([1, 2]))
         msg = ":CHAN{}:SCAL?".format(channel)
-        scale = self.dev.ask(msg)
+        scale = float(self.dev.ask(msg))
         if channel == 1:
             self.volt1_scale = scale
         elif channel == 2:
             self.volt2_scale = scale
-        return float(scale)
+        return scale
 
     # CHANNEL 8
     def channelFilter(self, channel, on=True):
@@ -1255,7 +1255,7 @@ class Rigol:
         if channel not in [1, 2]:
             raise InvalidArgument("Channel argument must be either 1 or 2")
         msg = ":MEAS:VPP? CHAN{}".format(channel)
-        return self.dev.ask(msg)
+        return float(self.dev.ask(msg))
 
     ############
     # WAVEFORM #

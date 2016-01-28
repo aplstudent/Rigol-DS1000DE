@@ -165,3 +165,10 @@ Wednesday - Jan 27th, 2016
 	much easier to control and I can more easily dictate when loops will run and I can stop
 	the process from continuously querying the oscilloscope instead of ddos-ing the osc.
 - placed the multiprocessing.Process instances inside of the rigolx class.  I'll check later today if it works.
+- I DID THE MULTIPROCESSING WAO I'M SO GREAT.  That was a hassle.  I think I was making too many queries to the
+	oscilloscope, although it could have been a hand full of other things.  I got rid of a lot of extra calls
+	that I didn't need to make.  For example I was asking for the time and voltage scale every time I replotted my
+	graph.  Instead of doing that I just initialized it once, and if I ever send a command to change the scale to the
+	oscilloscope, I'll update the x and y_scale attributes.
+- Trying to find what the best refresh rates are.  The oscilloscope seems to refresh every 10th of a second or so,
+	so I want to try to match that.
