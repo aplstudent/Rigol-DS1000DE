@@ -14,6 +14,11 @@ sources I used
 from __future__ import division
 import usbcon as uc
 import numpy as np
+import ast
+try:
+    import tkFileDialog as tkfd  # python2
+except:
+    import filedialog as tkfd  # python3
 
 __author__ = "Brian Perrett"
 
@@ -31,6 +36,13 @@ class Rigol:
     backends = ["usbtmc"]
 
     def __init__(self, backend, idProduct=None, idVendor=None):
+        """
+        The volt1/2_scale attributes, along with other attributes defined here
+            should always be up to date if you are changing them solely with the methods
+            of this class.  If you change the voltage scale on the oscilloscope manually,
+            you have to update these attributes manually also, or just use the "ask" methods
+            to query the volt scale/offset or time scale/offset.
+        """
         if backend == "usbtmc":
             self.dev = uc.UsbCon(idProduct=idProduct, idVendor=idVendor)
         else:
@@ -1355,3 +1367,68 @@ class Rigol:
         """
         msg = "KEY:LOCK?"
         return self.dev.ask(msg)
+
+    ######################
+    # CUSTOM SAVE STATES #
+    ######################
+    """
+    Some methods to query many settings of the oscilloscope and then
+        load saved settings from the computer.
+    """
+
+    # UNFINISHED
+    def saveState(self):
+        """
+        Queries the state of the oscilloscope and saves it as a python list string
+            formatted file to a location of your choosing through tkFileDialog.
+        """
+        save_location = tkfd.asksaveasfilename(defaultextension=".ros", filetypes=[("Rigol Oscilloscope Save", "*.ros")])
+        s = []
+        acquire_type = self.askAcquireType()[:4]
+        s.append(":ACQ:TYPE {}".format(acquire_type))
+        aquire_mode = self.askAquireMode()
+        aquire_mode = "RTIM" if aquire_mode[0] == "R" else "ETIM"
+        s.append(":ACQ:MODE {}".format(aquire_mode))
+        memdepth = self.askAcquireMemDepth()[:4]
+        s.append(":ACQ:MEMD {}".format(memdepth))
+        disptype = self.askDisplayType()[:4]
+        s.append(":DISP:TYPE {}".format(disptype))
+        dispgrid = self.askDisplayGrid()
+        s.append(":DISP:GRID {}".format(dispgrid))
+        disppersisty = self.askDisplayPersist()
+        s.append(":DISP:PERS {}".format(disppersisty))
+        dispbrightness = self.askDisplayBrightness()
+        s.append(":DISP:BRIG {}".format(dispbrightness))
+        dispintensity = self.askDisplayIntensity()
+        s.append(":DISP:INT {}".format(dispintensity))
+        timemode = self.askTimebaseMode()
+        timemode = "DEL" if timemode == "DELAYED" else timemode
+        s.append(":TIM:MODE {}".format(timemode))
+        delayed = True if timemode == "DEL" else False
+        timeoffset = self.askTimebaseMode(delayed=delayed)
+        s.append(":TIM{}:OFFS {}".format(":DEL" if delayed else "", timeoffset))
+        timescale = self.askTimebaseScale(delayed=delayed)
+        s.append(":TIM{}:SCAL {}".format(":DEL" if delayed else "", timescale))
+        timeformat = self.askTimebaseFormat()
+        s.append(":TIM:FORM {}".format(timeformat))
+        #  continue with trigger settings
+
+        #  Write file to save_location
+        with open(save_location, "w") as f:
+            f.write(str(s))
+
+    def loadState(self):
+        """
+        writes the commands in the .ros save list.
+        """
+        load_file = tkfd.askopenfilename(
+            defaultextension=".ros",
+            filetypes=[("Rigol Oscilloscope Save", "*.ros")],
+            title="Rigol Oscilloscope Save file to load"
+            )
+        with open(load_file, "r") as f:
+            state_str = f.read().strip()
+            state = ast.literal_eval(state_str)
+            for setting in state:
+                self.dev.write(setting)
+        print("{} save state has been loaded".format(load_file))
