@@ -9,7 +9,7 @@ multiprocessing based off of the answer to this post
     - http://stackoverflow.com/questions/13228763/using-multiprocessing-module-for-updating-tkinter-gui
 """
 from __future__ import division
-from multiprocessing import Process, Queue
+from multiprocessing import Process, Queue, RLock
 from Queue import Empty
 import rigol
 try:
@@ -27,7 +27,7 @@ __author__ = "Brian Perrett"
 
 class Rigolx:
 
-    def __init__(self, rigol_backend="usbtmc", checkqueuedelay=.03, addqueuetime=.07):
+    def __init__(self, rigol_backend="usbtmc", checkqueuedelay=.09, addqueuetime=.2):
         """
         checkqueuedelay -> How quickly python will check the queues for new voltage
             data to plot.  This value must be less than addqueuetime to ensure that
@@ -37,11 +37,13 @@ class Rigolx:
         q1 and q2 are the the queues which hold the voltage data for channel 1 and 2
             on the oscilloscope.
         """
+        self.lock = RLock()
         self.checkqueuedelay = int(checkqueuedelay * 1000)  # in ms
         self.addqueuetime = addqueuetime  # in sec
         self.dev = rigol.Rigol(rigol_backend)
         self.dev.waveformPointsMode("NORM")
         self.vpp = self.dev.askChannelScale(1) * 4
+        self.vpp2 = self.dev.askChannelScale(2) * 4
         self.x = self.dev.getTimebase()
         q1 = Queue()
         q1.cancel_join_thread()
@@ -60,32 +62,63 @@ class Rigolx:
         # self.root.after(self.checkqueuedelay, self.checkQueue2, q2)
         self.root.title("Rigol DS1000D/E Interface")
         self.makeWaveformFrame(q1, q2)
+        self.makeScalingFrame()
         print("STARTING PROCESS 1")
         self.t1 = Process(target=self.getWaveformData, args=(q1, q2))
         self.t1.start()
         self.root.mainloop()
 
-    def setVoltsPerDiv(self):
+    def setVoltsPerDiv(self, Event=None):
         """
         """
-        pass
+        vperdiv = self.vperdiventry.get()
+        self.dev.channelScale(1, vperdiv)
+        time.sleep(.1)
+        self.vpp = self.dev.askChannelScale(1) * 4
+        self.wave.set_ylim(-self.vpp, self.vpp)
+
+    def setVoltsPerDiv2(self, Event=None):
+        """
+        """
+        vperdiv = self.vperdiventry2.get()
+        self.dev.channelScale(2, vperdiv)
+        time.sleep(.1)
+        self.vpp2 = self.dev.askChannelScale(2) * 4
+        self.wave2.set_ylim(-self.vpp2, self.vpp2)
+
+    def setSecPerDiv(self, Event=None):
+        spd = self.timescaleentry.get()
+        self.dev.timebaseScale(spd)
+        time.sleep(.1)
+        self.x = self.dev.getTimebase()
+        self.wave.set_xlim(self.x[0], self.x[-1])
+        self.wave2.set_xlim(self.x[0], self.x[-1])
 
     def checkQueue1(self, q1, q2):
+        """
+        Notice there are 2 release statements in this method.  It is because
+            sometimes the method will not make it to the first release because of
+            the queues being empty, so I've written a second release method to
+            ensure that the lock is released
+        """
         try:
             data1 = q1.get(0)
             data2 = q2.get(0)
             # print(data)
             # print(dir(self.wave))
             if self.ch1:
-                self.p.set_xdata(self.x)
+                # print(len(self.x))
+                # print(len(data1))
+                self.p.set_xdata(self.x[:len(data1)])
                 self.p.set_ydata(data1)
             if self.ch2:
-                self.p2.set_xdata(self.x)
+                self.p2.set_xdata(self.x[:len(data2)])
                 self.p2.set_ydata(data2)
-            self.wf.canvas.draw()
         except Empty:
             pass
         finally:
+            if self.ch1 or self.ch2:
+                self.wf.canvas.draw()
             self.root.after(self.checkqueuedelay, self.checkQueue1, q1, q2)
 
     def makeWaveformFrame(self, q1, q2):
@@ -95,42 +128,130 @@ class Rigolx:
         """
         self.wf_full = tk.Frame(self.root)
         self.wf_button_frame = tk.Frame(self.wf_full)
-        self.wf = Figure(figsize=(7, 5), dpi=80)
-        self.wf_full.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        self.wf = Figure(figsize=(11, 9), dpi=80, linewidth=1, frameon=False)
+        # self.wf_full.pack(side=tk.LEFT, fill=tk.BOTH, expand=1)
+        self.wf_full.grid(row=0, column=0)
         self.canvas = FigureCanvasTkAgg(self.wf, master=self.wf_full)
-        self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
-        self.wave = self.wf.add_axes([0.09, 0.13, .85, .8], frameon=True)
-        self.p, = self.wave.plot([], [], linewidth=2.5)
-        self.p2, = self.wave.plot([], [], linewidth=2.5)
-        self.wave.legend(["Channel 1", "Channel 2"])
+        # self.canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
+        self.canvas.get_tk_widget().grid(row=0, column=0, columnspan=2)
+        self.wave2 = self.wf.add_axes([0.09, 0.13, .85, .4], frameon=True)
+        self.wave = self.wf.add_axes([0.09, 0.55, .85, .4], frameon=True)
+        #  change the color of borders, labels, ticks, title
+        self.wave.axes.xaxis.set_ticklabels([])
+        self.wave.spines["bottom"].set_color("#cccccc")
+        self.wave.spines["right"].set_color("#cccccc")
+        self.wave.spines["top"].set_color("#cccccc")
+        self.wave.spines["left"].set_color("#cccccc")
+        self.wave.tick_params(axis='x', colors='#8c8c8c')
+        self.wave.tick_params(axis='y', colors='#8c8c8c')
+        self.wave.yaxis.label.set_color('#8c8c8c')
+        self.wave.xaxis.label.set_color('#8c8c8c')
+        self.wave.title.set_color('#8c8c8c')
+        self.wave.grid()
+
+        self.wave2.spines["bottom"].set_color("#cccccc")
+        self.wave2.spines["right"].set_color("#cccccc")
+        self.wave2.spines["top"].set_color("#cccccc")
+        self.wave2.spines["left"].set_color("#cccccc")
+        self.wave2.tick_params(axis='x', colors='#8c8c8c')
+        self.wave2.tick_params(axis='y', colors='#8c8c8c')
+        self.wave2.yaxis.label.set_color('#8c8c8c')
+        self.wave2.xaxis.label.set_color('#8c8c8c')
+        self.wave2.title.set_color('#8c8c8c')
+        self.wave2.grid()
+
+        self.p, = self.wave.plot([], [], linewidth=2, color="#007acc", label="Channel 1")
+        self.p2, = self.wave2.plot([], [], linewidth=2, color="#ff4d4d", label="Channel 2")
+        # self.wave.legend(["Channel 1", "Channel 2"])
         # print(dir(self.p))
-        self.wave.set_xlabel("Time (seconds)")
+
+        # self.wave.set_xlabel("Time (seconds)")
         self.wave.set_ylabel("Voltage, (V)")
         self.wave.set_ylim(-self.vpp, self.vpp)
         self.wave.set_xlim(self.x[0],self.x[-1])
+
+        self.wave2.set_xlabel("Time (seconds)")
+        self.wave2.set_ylabel("Voltage, (V)")
+        self.wave2.set_ylim(-self.vpp2, self.vpp2)
+        self.wave2.set_xlim(self.x[0],self.x[-1])
+
         self.canvas.show()
-        self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.wf_full)
+        self.toolbar_frame = tk.Frame()
+        self.toolbar = NavigationToolbar2TkAgg(self.canvas, self.toolbar_frame)
         self.toolbar.pack()
+        self.toolbar_frame.grid(row=1, column=0, columnspan=2, sticky="W")
         self.toolbar.update()
 
         # Buttons
         self.ch1_button = tk.Button(self.wf_button_frame, text="CH1", command=lambda: self.showChannel(1))
         self.ch2_button = tk.Button(self.wf_button_frame, text="CH2", command=lambda: self.showChannel(2))
-        self.ch1_button.grid(row=0, column=0, padx=140, pady=5, ipadx=10, ipady=10)
-        self.ch2_button.grid(row=0, column=1, padx=140, pady=5, ipadx=10, ipady=10)
-        self.wf_button_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=1)
+        self.ch1_button.grid(row=0, column=0, ipadx=10, ipady=10, padx=(0, 40))
+        self.ch2_button.grid(row=0, column=1, ipadx=10, ipady=10, padx=(40, 0))
+        # self.wf_button_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=1)
+        self.wf_button_frame.grid(row=2, column=0)
+
+        # Allow resizing.  Omitting this portion will keep every frame the 
+        #    same size despite window resizing
+        self.root.columnconfigure(0, weight=1)
+        self.root.rowconfigure(0, weight=1)
+        self.wf_full.columnconfigure(0, weight=1)
+        self.wf_full.rowconfigure(0, weight=1)
+        self.toolbar_frame.columnconfigure(0, weight=1)
+        self.toolbar_frame.rowconfigure(0, weight=1)
+        self.wf_button_frame.columnconfigure(0, weight=1)
+        self.wf_button_frame.rowconfigure(0, weight=1)
+        self.toolbar.columnconfigure(0, weight=1)
+        self.toolbar.rowconfigure(0, weight=1)
 
     def makeScalingFrame(self):
         """
         """
         self.scale_frame = tk.Frame(self.root)
-        self.vperdiventry = tk.Entry(self.scale_frame)
-        self.vperdivbutton = tk.Button(self.scale_frame, text="SET V/DIV")
 
+        # General Settings
+        self.generalsettingslabel = tk.Label(self.scale_frame, text="General Settings")
+        self.timescaleentry = tk.Entry(self.scale_frame)
+        self.timescalebutton = tk.Button(self.scale_frame, text="SET S/DIV", command=self.setSecPerDiv)
+
+        # Volts/Div channel 1
+        self.channel1label = tk.Label(self.scale_frame, text="Channel 1 Settings")
+        self.vperdiventry = tk.Entry(self.scale_frame)
+        self.vperdivbutton = tk.Button(self.scale_frame, text="SET V/DIV", command=self.setVoltsPerDiv)
+
+        # Volts/Div channel 2
+        self.channel2label = tk.Label(self.scale_frame, text="Channel 2 Settings")
+        self.vperdiventry2 = tk.Entry(self.scale_frame)
+        self.vperdivbutton2 = tk.Button(self.scale_frame, text="SET V/DIV", command=self.setVoltsPerDiv2)
+
+        # Layout
         row = 0
+        self.generalsettingslabel.grid(row=row, column=0, columnspan=2)
+
+        row += 1
+        self.timescaleentry.grid(row=row, column=0)
+        self.timescalebutton.grid(row=row, column=1)
+
+        row += 1
+        self.channel1label.grid(row=row, column=0, columnspan=2, pady=(20, 0))
+
+        row += 1
         self.vperdiventry.grid(row=row, column=0, padx=5, pady=5)
         self.vperdivbutton.grid(row=row, column=1, padx=(0, 5), pady=5)
+
         row += 1
+        self.channel2label.grid(row=row, column=0, columnspan=2, pady=(20, 0))
+
+        row += 1
+        self.vperdiventry2.grid(row=row, column=0, padx=5, pady=5)
+        self.vperdivbutton2.grid(row=row, column=1, padx=(0, 5), pady=5)
+
+        self.scale_frame.grid(row=0, column=1, sticky="N")
+        
+        self.vperdiventry.bind("<Return>", self.setVoltsPerDiv)
+        self.timescaleentry.bind("<Return>", self.setSecPerDiv)
+        self.vperdiventry2.bind("<Return>", self.setVoltsPerDiv2)
+
+        # Volts/Div channel 2     
 
     def showChannel(self, channel):
         """
