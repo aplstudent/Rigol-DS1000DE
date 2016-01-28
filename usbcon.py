@@ -52,31 +52,46 @@ class UsbCon():
         """
         Wrapping around the read method in usbtmc.Instrument
         """
-        return self.instr.read(num, encoding)
+        self.lock.acquire()
+        msg = self.instr.read(num, encoding)
+        self.lock.release()
+        return msg
 
     def write(self, message, encoding="utf-8"):
         """
         Wrapping around the write method in usbtmc.Instrument
         """
-        return self.instr.write(message, encoding)
+        self.lock.acquire()
+        msg = self.instr.write(message, encoding)
+        self.lock.release()
+        return msg
 
     def ask(self, message, num=-1, encoding="utf-8"):
         """
         Wrapping around the ask method in usbtmc.Instrument
         """
-        return self.instr.ask(message, num, encoding)
+        self.lock.acquire()
+        msg = self.instr.ask(message, num, encoding)
+        self.lock.release()
+        return msg
 
     def read_raw(self, num=-1):
         """
         Wrapping around the read_raw method in usbtmc.Instrument
         """
-        return self.instr.read_raw(num)
+        self.lock.acquire()
+        msg = self.instr.read_raw(num)
+        self.lock.release()
+        return msg
 
     def ask_raw(self, msg, num=-1):
         """
         Wrapping around the ask_raw method in usbtmc.Instrument
         """
-        return self.instr.ask_raw(msg, num)
+        self.lock.acquire()
+        msg = self.instr.ask_raw(msg, num)
+        self.lock.release()
+        return msg
 
 
 def testConnect():
