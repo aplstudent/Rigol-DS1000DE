@@ -63,10 +63,25 @@ class Rigolx:
         self.root.title("Rigol DS1000D/E Interface")
         self.makeWaveformFrame(q1, q2)
         self.makeScalingFrame()
+        self.makeInfoPanel()
         print("STARTING PROCESS 1")
         self.t1 = Process(target=self.getWaveformData, args=(q1, q2))
         self.t1.start()
         self.root.mainloop()
+
+    def refresh(self):
+        """
+        """
+        vpp1 = self.dev.measureVpp(1)
+        vpp2 = self.dev.measureVpp(2)
+        self.channel1vppentry.config(state="normal")
+        self.channel1vppentry.delete(0, "end")
+        self.channel1vppentry.insert("end", vpp1)
+        self.channel1vppentry.config(state="readonly")
+        self.channel2vppentry.config(state="normal")
+        self.channel2vppentry.delete(0, "end")
+        self.channel2vppentry.insert("end", vpp2)
+        self.channel2vppentry.config(state="readonly")
 
     def setVoltsPerDiv(self, Event=None):
         """
@@ -190,7 +205,7 @@ class Rigolx:
         # self.wf_button_frame.pack(side=tk.BOTTOM, fill=tk.BOTH, expand=1)
         self.wf_button_frame.grid(row=2, column=0)
 
-        # Allow resizing.  Omitting this portion will keep every frame the 
+        # Allow resizing.  Omitting this portion will keep every frame the
         #    same size despite window resizing
         self.root.columnconfigure(0, weight=1)
         self.root.rowconfigure(0, weight=1)
@@ -251,6 +266,49 @@ class Rigolx:
         self.timescaleentry.bind("<Return>", self.setSecPerDiv)
         self.vperdiventry2.bind("<Return>", self.setVoltsPerDiv2)
 
+    def makeInfoPanel(self):
+        """
+        """
+        color = "#ccffcc"
+
+        self.infoframe = tk.Frame(self.root, borderwidth=2, bg=color, relief="groove")
+
+        self.channel1infolabel = tk.Label(self.infoframe, text="Channel 1 Info", bg=color)
+        self.channel2infolabel = tk.Label(self.infoframe, text="Channel 2 Info", bg=color)
+        self.channel1vppentry = tk.Entry(self.infoframe)
+        self.channel1vpplabel = tk.Label(self.infoframe, text="VPP", bg=color)
+        self.channel2vppentry = tk.Entry(self.infoframe)
+        self.channel2vpplabel = tk.Label(self.infoframe, text="VPP", bg=color)
+
+        self.inforefreshbutton = tk.Button(self.infoframe, text="Refresh", command=self.refresh)
+
+        #  Layout
+        row = 0
+        self.channel1infolabel.grid(row=row, column=0, columnspan=2)
+
+        row += 1
+        self.channel1vppentry.grid(row=row, column=0)
+        self.channel1vpplabel.grid(row=row, column=1)
+
+        row += 1
+        self.channel2infolabel.grid(row=row, column=0, columnspan=2)
+
+        row += 1
+        self.channel2vppentry.grid(row=row, column=0)
+        self.channel2vpplabel.grid(row=row, column=1)
+
+        row += 1
+        self.inforefreshbutton.grid(row=row, column=1)
+
+        self.infoframe.grid(row=0, column=2, rowspan=2, sticky="N")
+
+        vpp1 = self.dev.measureVpp(1)
+        vpp2 = self.dev.measureVpp(2)
+        self.channel1vppentry.insert("end", vpp1)
+        self.channel1vppentry.config(state="readonly")
+        self.channel2vppentry.insert("end", vpp2)
+        self.channel2vppentry.config(state="readonly")
+
         # Volts/Div channel 2     
 
     def showChannel(self, channel):
@@ -259,20 +317,20 @@ class Rigolx:
         If this function causes both channels to be off, terminate the
             processes.
         """
-        if channel==1 and self.ch1:
+        if channel == 1 and self.ch1:
             x = self.dev.channelDisplay(1, False)
             self.ch1 = False
             self.p.set_xdata([])
             self.p.set_ydata([])
-        elif channel==1 and not self.ch1:
+        elif channel == 1 and not self.ch1:
             x = self.dev.channelDisplay(1, True)
             self.ch1 = True
-        if channel==2 and self.ch2:
+        if channel == 2 and self.ch2:
             x = self.dev.channelDisplay(2, False)
             self.ch2 = False
             self.p2.set_xdata([])
             self.p2.set_ydata([])
-        elif channel==2 and not self.ch2:
+        elif channel == 2 and not self.ch2:
             x = self.dev.channelDisplay(2, True)
             self.ch2 = True
         self.wf.canvas.draw()

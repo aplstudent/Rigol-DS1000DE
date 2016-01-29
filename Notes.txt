@@ -176,3 +176,14 @@ Wednesday - Jan 27th, 2016
 	and quickly load them up without having to manually change everything every time.
 - I want to use grid instead of pack for my layout manager on the main root window.  Otherwise
 	I think I will have a difficult time dictating exactly the layout I want.
+________________________________________
+
+Friday - Jan 29th, 2016
+- I did a lot of stuff yesterday but I wasn't taking notes while working.
+	- changed the layout of the gui so that it shows 2 different plots on the screen rather than
+		one canvas with 2 plots on it.  This is just for my own convenience, because each waveform
+		can have a different scale, so I decided it would be easier to put them on different axes.
+- Added voltage/sec and time/sec changing capabilities from the gui.
+- Adding an info panel.
+	- Added vpp measurements.  Refresh manually.  May make it so they refresh automatically.
+- Added a lot of info the readme file.
