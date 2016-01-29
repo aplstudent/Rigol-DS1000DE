@@ -68,7 +68,7 @@ When this is run, it should return a list of available devices and you will see 
 
 #### Sources Used
 
-Using this programming guide -> http://www.batronix.com/pdf/Rigol/ProgrammingGuide/DS1000DE\_ProgrammingGuide\_EN.pdf
+Using this programming guide -> http://www.batronix.com/pdf/Rigol/ProgrammingGuide/DS1000DE_ProgrammingGuide_EN.pdf
 
 - http://scruss.com/blog/tag/usbtmc/
 - http://www.righto.com/2013/07/rigol-oscilloscope-hacks-with-python.html
