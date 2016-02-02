@@ -59,7 +59,6 @@ class Rigolx:
         """
         self.root = tk.Tk()
         self.root.after(self.checkqueuedelay, self.checkQueue1, q1, q2)
-        # self.root.after(self.checkqueuedelay, self.checkQueue2, q2)
         self.root.title("Rigol DS1000D/E Interface")
         self.makeWaveformFrame(q1, q2)
         self.makeScalingFrame()

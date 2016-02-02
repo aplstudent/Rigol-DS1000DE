@@ -47,12 +47,13 @@ class Rigol:
             self.dev = uc.UsbCon(idProduct=idProduct, idVendor=idVendor)
         else:
             raise InvalidBackendException("Please specify a valid backend such as {}".format(self.backends))
+        delay = True if self.askTimebaseMode() == "DEL" else False
         self.volt1_scale = self.askChannelScale(1)
         self.volt1_offset = self.askChannelOffset(1)
         self.volt2_scale = self.askChannelScale(2)
         self.volt2_offset = self.askChannelOffset(2)
-        self.time_scale = self.askTimebaseScale(delayed=False)
-        self.time_offset = self.askTimebaseOffset(delayed=False)
+        self.time_scale = self.askTimebaseScale(delayed=delay)
+        self.time_offset = self.askTimebaseOffset(delayed=delay)
 
     def identify(self):
         return self.dev.ask("*IDN?")
@@ -77,6 +78,19 @@ class Rigol:
 
     def auto(self):
         self.dev.write(":AUTO")
+
+    def refreshAttributes(self):
+        """
+        In case settings are changed manually on the oscilloscope, we can reset all
+            of our class attributes with this method.
+        """
+        delay = True if self.askTimebaseMode() == "DEL" else False
+        self.volt1_scale = self.askChannelScale(1)
+        self.volt1_offset = self.askChannelOffset(1)
+        self.volt2_scale = self.askChannelScale(2)
+        self.volt2_offset = self.askChannelOffset(2)
+        self.time_scale = self.askTimebaseScale(delayed=delay)
+        self.time_offset = self.askTimebaseOffset(delayed=delay)
 
     ###########
     # ACQUIRE #
