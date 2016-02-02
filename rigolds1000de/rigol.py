@@ -18,7 +18,7 @@ import ast
 try:
     import tkFileDialog as tkfd  # python2
 except:
-    import filedialog as tkfd  # python3
+    import tkinter.filedialog as tkfd  # python3
 
 __author__ = "Brian Perrett"
 
