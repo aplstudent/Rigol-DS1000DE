@@ -6,7 +6,10 @@ Currently it uses python-usbtmc as its backend for usb communication with the os
 Currently, the only OS that I have tested this on is Ubuntu, but I imagine it would work on other linux operating systems, and if you can get usbtmc working on windows, it may work there as well.
 
 * Make sure you are running python 2.7.  I wrote this with compatibility with python 3 in mind, but I have not tested it.
-* Download this repo
+* Download this repo or install it through pip
+
+`$ pip install rigolds1000de`
+
 * Install usbtmc
 
 `$ sudo apt-get install python-usbtmc`
